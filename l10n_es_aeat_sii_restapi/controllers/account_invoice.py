@@ -144,6 +144,13 @@ class AccountInvoiceController(Controller):
             account_id = invoice.journal_id.default_credit_account_id.id
 
         line_obj = request.env['account.invoice.line']
+        # TODO - parsear bien los impuestos
+        if kwargs['type'] in ['out_invoice', 'out_refund']:
+            tax_code = 'S_IVA21B'
+        else:
+            tax_code = 'P_IVA21_BC'
+        tax_id = request.env['account.tax'].search(
+            [('description', '=', tax_code)], limit=1)
 
         for line in kwargs['lines']:
             line_obj.create({
@@ -152,6 +159,7 @@ class AccountInvoiceController(Controller):
                 'name': '/',
                 'price_unit': line['base'],
                 'quantity': 1,
+                'invoice_line_tax_id': [(4, [tax_id.id])]
             })
 
         return {
