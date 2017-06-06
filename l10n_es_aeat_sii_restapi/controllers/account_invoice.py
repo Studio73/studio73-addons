@@ -56,13 +56,12 @@ class AccountInvoiceController(Controller):
             elif not partner.get('country_code', False):
                 return self._error(4103,
                                    _('Partner country code is missing'))
-            '''
+
             partner_brw = request.env['res.partner'].create({
                 'name': partner['name'],
                 'vat': partner['vat']
             })
-            '''
-            return self._error(4000, _('TODO'))
+            # return self._error(4000, _('TODO'))
         vals.update({
             'partner_id': partner_brw.id,
             'account_id': partner_brw.property_account_receivable.id,
