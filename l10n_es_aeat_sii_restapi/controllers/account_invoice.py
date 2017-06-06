@@ -57,10 +57,24 @@ class AccountInvoiceController(Controller):
                 return self._error(4103,
                                    _('Partner country code is missing'))
 
+            country = request.env['res.country'].search(
+                [('code', '=', partner['country_code'])], limit=1)
+            account_rec = request.env['account.account'].search(
+                [('code', 'like', '430000')], limit=1)
+            account_pay = request.env['account.account'].search(
+                [('code', 'like', '410000')], limit=1)
+            fposition = request.env['account.fiscal.position'].search(
+                [('name', '=', u'Régimen Nacional')], limit=1)
+
             partner_brw = request.env['res.partner'].create({
                 'name': partner['name'],
-                'vat': partner['vat']
+                'vat': partner['vat'],
+                'country_id': country.id,
+                'property_account_receivable': account_rec.id,
+                'property_account_payable': account_pay.id,
+                'property_account_position': fposition.id
             })
+
             # return self._error(4000, _('TODO'))
         vals.update({
             'partner_id': partner_brw.id,
