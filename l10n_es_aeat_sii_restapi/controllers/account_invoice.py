@@ -8,6 +8,7 @@ from werkzeug import wrappers
 from openerp import http, _
 from openerp.http import request
 from openerp.http import Controller
+from openerp.addons.web.controllers.main import Session
 
 LINE_TYPES = [
     'S1', 'S2', 'S3', 'S20', 'E21', 'E22', 'E23',
@@ -106,13 +107,13 @@ class AccountInvoiceController(Controller):
             [('code', '=', registration_key_code)], limit=1
         )
         if not registration_key:
-            return self._error(4300, _('Invoice type is missing'))
+            return self._error(4203, _('Registration key is missing'))
         vals['registration_key'] = registration_key.id
 
         # THIRD PARTY
         if kwargs.get('third_party', False):
             if not kwargs.get('third_party_number', False):
-                return self._error(4400, _('Third party number is missing'))
+                return self._error(4204, _('Third party number is missing'))
 
         vals.update({
             'third_party': kwargs.get('third_party', False),
@@ -126,15 +127,15 @@ class AccountInvoiceController(Controller):
             })
 
         if not kwargs.get('lines', False):
-            return self._error(4500, _('Invoice lines are missing'))
+            return self._error(4300, _('Invoice lines are missing'))
 
         for line in kwargs['lines']:
             if not line.get('type', False):
-                return self._error(4501, _('Invoice line type is missing'))
+                return self._error(4301, _('Invoice line type is missing'))
             if line['type'] not in LINE_TYPES:
-                return self._error(4502, _('Wrong invoice line type'))
+                return self._error(4302, _('Wrong invoice line type'))
             if not line['base']:
-                return self._error(4503, _('Invoice line base is missing'))
+                return self._error(4303, _('Invoice line base is missing'))
 
         invoice = request.env['account.invoice'].create(vals)
         # TODO - Comprobar que esta agrupación es correcta
