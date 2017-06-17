@@ -9,8 +9,8 @@ class AccountAccount(models.Model):
 
     def search(self, cr, uid, args, offset=0,
                limit=None, order=None, context=None, count=False):
-        """Improves the search of accounts using a dot to fill the zeroes
-            (like 43.27 to search account 43000027)"""
+        """Improves the search of accounts using a dot or comma to fill
+        the zeroes (like 43.27 to search account 43000027)"""
         args = args[:]
         pos = 0
         while pos < len(args):
