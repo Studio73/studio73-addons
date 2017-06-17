@@ -15,7 +15,7 @@
     """,
     'author': 'Consultoría Informática Studio 73 S.L.',
     'website': 'http://www.studio73.es',
-    'depends': ['base', 'account_chart_update'],
+    'depends': ['base', 'account_chart_update', 'connector'],
     'data': [
         "views/res_company_view.xml",
     ],

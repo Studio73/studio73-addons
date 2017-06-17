@@ -11,6 +11,7 @@
 				<page string="Configuration" position="inside">
 					<separator name="fast_create_config" string="Creación rápida de datos" />
 					<group name="fast_create_group">
+						<field name="code_digits" />
 						<button name="fast_create" type="object" string="Configurar Compañía" class="oe_highlight"/>
 					</group>
 				</page>
