@@ -11,12 +11,8 @@ class SessionCtrl(Session):
     @http.route('/api/authenticate', type='json', auth="none")
     def api_authenticate(self, login, password, db=False):
         if not db:
-            dbs = http.db_list()
-            host = request.httprequest.environ\
-                          .get('HTTP_HOST', '').split(':')[0].replace('.', '-')
-            dbs = [d for d in dbs if d == host]
-            if dbs:
-                db = dbs[0]
+            db = request.httprequest.environ\
+                        .get('HTTP_HOST', '').split(':')[0].replace('.', '-')
         if not db:
             return ''
         try:
