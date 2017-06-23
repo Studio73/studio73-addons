@@ -94,6 +94,8 @@ class AccountInvoiceImport(models.Model):
                                                               u"pero sin referencia catastral"),
                                                         ("4", u"Inmueble situado en el extranjero")])
     realproperty_cadastrial_code = fields.Char(string="Real property cadastrial code")
+    state = fields.Selection(string="State", selection=[("draft", "Draft"),
+                                                        ("validated", "Validated")], default="draft")
 
 
 class AccountInvoiceImportLine(models.Model):
