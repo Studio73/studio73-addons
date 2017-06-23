@@ -51,6 +51,9 @@ class AccountInvoiceController(Controller):
         if not country:
             return self._error(4104, _('Country code is not allowed'))
 
+        europe_group = request.env["res.country.group"].search([("name", "=", "Europe")], limit=1)
+        europe = europe_group.mapped('country_ids.code')
+
         # Conseguir la posicion fiscal en base al pais
         if country.code == 'ES':
             fposition = request.env['account.fiscal.position'].search(
@@ -61,12 +64,13 @@ class AccountInvoiceController(Controller):
         else:
             fposition = request.env['account.fiscal.position'].search(
                 [('name', 'like', u'Régimen Extracomunitario')], limit=1)
+        """
+        # TODO ¿Que es esto?
         if not (account_rec or account_pay):
             return self._error(5101,
                                _('Company is not available to receive'
                                  ' invoices. Contact with the'
                                  ' IT support team'))
-
         partner_brw = request.env['res.partner'].search(
             [('vat', '=', partner['vat'])], limit=1
         )
@@ -98,12 +102,13 @@ class AccountInvoiceController(Controller):
                 partner_brw.name = partner['name']
             if partner_brw.property_account_position != fposition:
                 partner_brw.property_account_position = fposition
-
+        
         vals.update({
             'partner_id': partner_brw.id,
             'account_id': partner_brw.property_account_receivable.id,
             'fiscal_position': partner_brw.property_account_position.id
         })
+        """
 
         # INVOICE
         if not kwargs.get('date', False):
@@ -169,6 +174,25 @@ class AccountInvoiceController(Controller):
             if not line['base']:
                 return self._error(4303, _('Invoice line base is missing'))
 
+        print kwargs
+        print ""
+        print vals
+        vals["invoice_date"] = vals["date_invoice"]
+        vals["name"] = partner["name"]
+        vals["vat"] = partner["vat"]
+        vals["country_id"] = country.id
+        vals["type"] = vals["invoice_type"]
+        # TODO
+        vals["invoice_type"] = False
+        # TODO
+        vals["description"] = "Test"
+        lines = kwargs["lines"]
+        vals["base"] = sum(l.get("base", 0) for l in lines)
+        vals["tax_amount"] = sum(l.get("tax_amount", 0) for l in lines)
+        vals["line_ids"] = [(0, 0, l) for l in lines]
+
+        invoice_import = request.env['account.invoice.import'].create(vals)
+        """
         invoice = request.env['account.invoice'].create(vals)
         # TODO - Comprobar que esta agrupación es correcta
         if invoice.type in ['out_invoice', 'out_refund']:
@@ -194,9 +218,9 @@ class AccountInvoiceController(Controller):
                 'quantity': 1,
                 'invoice_line_tax_id': [(4, [tax_id.id])]
             })
-
+        """
         return {
-            'result': invoice.id,
+            'result': invoice_import.id,
             'status': 200
         }
 
