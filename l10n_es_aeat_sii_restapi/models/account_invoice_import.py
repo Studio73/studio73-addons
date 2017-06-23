@@ -12,13 +12,44 @@ class AccountInvoiceImport(models.Model):
     @api.multi
     def to_invoice(self):
         account_invoice_obj = self.env["account.invoice"]
+        account_invoice_line_obj = self.env['account.invoice.line']
+        account_tax_obj = self.env["account.tax"]
+
         for inv_import in self:
             partner = inv_import.get_partner()
             invoice = account_invoice_obj.create({
                 "partner_id": partner.id,
                 "account_id": partner.property_account_receivable.id,
                 "fiscal_position": partner.property_account_position and partner.property_account_position.id or False,
+                "date_invoice": inv_import.invoice_date,
+                "number": inv_import.number,
+                "invoice_number": inv_import.number,
+                "type": inv_import.type
             })
+            # TODO - Comprobar que esta agrupación es correcta
+            if invoice.type in ['out_invoice', 'out_refund']:
+                account_id = invoice.journal_id.default_debit_account_id.id
+            else:
+                account_id = invoice.journal_id.default_credit_account_id.id
+
+            # TODO - parsear bien los impuestos
+            if inv_import.type in ['out_invoice', 'out_refund']:
+                tax_code = 'S_IVA21B'
+            else:
+                tax_code = 'P_IVA21_BC'
+
+            tax_id = account_tax_obj.search([('description', '=', tax_code)], limit=1)
+
+            for line in inv_import.line_ids:
+                account_invoice_line_obj.create({
+                    'invoice_id': invoice.id,
+                    'account_id': account_id,
+                    'name': '/',
+                    'price_unit': line.base,
+                    'quantity': 1,
+                    'invoice_line_tax_id': [(4, [tax_id.id])]
+                })
+
             inv_import.invoice_id = invoice.id
             inv_import.state = "validated"
         return True

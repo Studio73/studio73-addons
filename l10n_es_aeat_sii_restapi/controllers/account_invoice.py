@@ -139,33 +139,7 @@ class AccountInvoiceController(Controller):
         vals["line_ids"] = [(0, 0, l) for l in lines]
 
         invoice_import = request.env['account.invoice.import'].create(vals)
-        """
-        invoice = request.env['account.invoice'].create(vals)
-        # TODO - Comprobar que esta agrupación es correcta
-        if invoice.type in ['out_invoice', 'out_refund']:
-            account_id = invoice.journal_id.default_debit_account_id.id
-        else:
-            account_id = invoice.journal_id.default_credit_account_id.id
 
-        line_obj = request.env['account.invoice.line']
-        # TODO - parsear bien los impuestos
-        if kwargs['type'] in ['out_invoice', 'out_refund']:
-            tax_code = 'S_IVA21B'
-        else:
-            tax_code = 'P_IVA21_BC'
-        tax_id = request.env['account.tax'].search(
-            [('description', '=', tax_code)], limit=1)
-
-        for line in kwargs['lines']:
-            line_obj.create({
-                'invoice_id': invoice.id,
-                'account_id': account_id,
-                'name': '/',
-                'price_unit': line['base'],
-                'quantity': 1,
-                'invoice_line_tax_id': [(4, [tax_id.id])]
-            })
-        """
         return {
             'result': invoice_import.id,
             'status': 200
