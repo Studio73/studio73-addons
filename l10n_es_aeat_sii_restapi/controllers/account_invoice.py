@@ -32,13 +32,7 @@ class AccountInvoiceController(Controller):
         '/api/account.invoice/', type='json', methods=['POST'], auth='user'
     )
     def account_invoice_create(self, **kwargs):
-        vals = {
-        }
-        if not kwargs.get('date', False):
-            vals['date_invoice'] = datetime.today().strftime('%Y-%m-%d')
-        else:
-            # TODO - Comprobar formato de fecha correcto
-            vals['date_invoice'] = kwargs['date']
+        vals = {}
 
         # PARTNER
         if not kwargs.get('partner', False):
@@ -47,25 +41,46 @@ class AccountInvoiceController(Controller):
         partner = kwargs['partner']
         if not partner.get('vat', False):
             return self._error(4101, _('Partner VAT is missing'))
+        if not partner.get('name', False):
+            return self._error(4102, _('Partner name is missing'))
+        if not partner.get('country_code', False):
+            return self._error(4103, _('Partner country code is missing'))
+
+        country = request.env['res.country'].search(
+            [('code', '=', partner['country_code'])], limit=1)
+        if not country:
+            return self._error(4104, _('Country code is not allowed'))
+
+        # Conseguir la posicion fiscal en base al pais
+        if country.code == 'ES':
+            fposition = request.env['account.fiscal.position'].search(
+                [('name', '=', u'Régimen Nacional')], limit=1)
+        elif country.code in europe:
+            fposition = request.env['account.fiscal.position'].search(
+                [('name', '=', u'Régimen Intracomunitario')], limit=1)
+        else:
+            fposition = request.env['account.fiscal.position'].search(
+                [('name', 'like', u'Régimen Extracomunitario')], limit=1)
+        if not (account_rec or account_pay):
+            return self._error(5101,
+                               _('Company is not available to receive'
+                                 ' invoices. Contact with the'
+                                 ' IT support team'))
 
         partner_brw = request.env['res.partner'].search(
             [('vat', '=', partner['vat'])], limit=1
         )
-        if not partner_brw:
-            if not partner.get('name', False):
-                return self._error(4102, _('Partner name is missing'))
-            elif not partner.get('country_code', False):
-                return self._error(4103,
-                                   _('Partner country code is missing'))
 
-            country = request.env['res.country'].search(
-                [('code', '=', partner['country_code'])], limit=1)
+        if not partner_brw:
             account_rec = request.env['account.account'].search(
                 [('code', 'like', '430000')], limit=1)
             account_pay = request.env['account.account'].search(
                 [('code', 'like', '410000')], limit=1)
-            fposition = request.env['account.fiscal.position'].search(
-                [('name', '=', u'Régimen Nacional')], limit=1)
+            if not (account_rec or account_pay):
+                return self._error(5100,
+                                   _('Company is not available to receive'
+                                     ' invoices. Contact with the'
+                                     ' IT support team'))
 
             partner_brw = request.env['res.partner'].create({
                 'name': partner['name'],
@@ -75,13 +90,29 @@ class AccountInvoiceController(Controller):
                 'property_account_payable': account_pay.id,
                 'property_account_position': fposition.id
             })
+        else:
+            # Actualizar los datos del partner
+            if partner_brw.country_id != country:
+                partner_brw.country_id = country
+            if partner_brw.name != partner['name']:
+                partner_brw.name = partner['name']
+            if partner_brw.property_account_position != fposition:
+                partner_brw.property_account_position = fposition
 
-            # return self._error(4000, _('TODO'))
         vals.update({
             'partner_id': partner_brw.id,
             'account_id': partner_brw.property_account_receivable.id,
             'fiscal_position': partner_brw.property_account_position.id
         })
+
+        # INVOICE
+        if not kwargs.get('date', False):
+            vals['date_invoice'] = datetime.today().strftime('%Y-%m-%d')
+        else:
+            if self.check_date_type(kwargs['date']):
+                vals['date_invoice'] = kwargs['date']
+            else:
+                return self._error(4205, _('Wrong date type'))
 
         # INVOICE TYPE
         if not kwargs.get('type', False):
@@ -96,9 +127,10 @@ class AccountInvoiceController(Controller):
         if kwargs['type'] in ['in_invoice', 'in_refund']:
             if not kwargs.get('supplier_number', False):
                 return self._error(
-                    4202, _('Supplier invoice number type is missing')
+                    4202, _('Supplier invoice number is missing')
                 )
-            vals['supplier_number'] = kwargs['supplier_number']
+            vals['supplier_invoice_number'] = kwargs['supplier_number']
+            vals['reference'] = kwargs['supplier_number']
 
         # REGISTRATION KEY
         registration_key_code = kwargs.get('registration_key', '01')
@@ -167,3 +199,13 @@ class AccountInvoiceController(Controller):
             'result': invoice.id,
             'status': 200
         }
+
+    def check_date_type(self, date):
+        try:
+            datetime.strptime(date)
+        except Exception:
+            try:
+                datetime.strptime(date)
+            except Exception:
+                return False
+        return True
