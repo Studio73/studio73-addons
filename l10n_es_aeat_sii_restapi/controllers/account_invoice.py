@@ -51,19 +51,6 @@ class AccountInvoiceController(Controller):
         if not country:
             return self._error(4104, _('Country code is not allowed'))
 
-        europe_group = request.env["res.country.group"].search([("name", "=", "Europe")], limit=1)
-        europe = europe_group.mapped('country_ids.code')
-
-        # Conseguir la posicion fiscal en base al pais
-        if country.code == 'ES':
-            fposition = request.env['account.fiscal.position'].search(
-                [('name', '=', u'Régimen Nacional')], limit=1)
-        elif country.code in europe:
-            fposition = request.env['account.fiscal.position'].search(
-                [('name', '=', u'Régimen Intracomunitario')], limit=1)
-        else:
-            fposition = request.env['account.fiscal.position'].search(
-                [('name', 'like', u'Régimen Extracomunitario')], limit=1)
         """
         # TODO ¿Que es esto?
         if not (account_rec or account_pay):
@@ -71,43 +58,6 @@ class AccountInvoiceController(Controller):
                                _('Company is not available to receive'
                                  ' invoices. Contact with the'
                                  ' IT support team'))
-        partner_brw = request.env['res.partner'].search(
-            [('vat', '=', partner['vat'])], limit=1
-        )
-
-        if not partner_brw:
-            account_rec = request.env['account.account'].search(
-                [('code', 'like', '430000')], limit=1)
-            account_pay = request.env['account.account'].search(
-                [('code', 'like', '410000')], limit=1)
-            if not (account_rec or account_pay):
-                return self._error(5100,
-                                   _('Company is not available to receive'
-                                     ' invoices. Contact with the'
-                                     ' IT support team'))
-
-            partner_brw = request.env['res.partner'].create({
-                'name': partner['name'],
-                'vat': partner['vat'],
-                'country_id': country.id,
-                'property_account_receivable': account_rec.id,
-                'property_account_payable': account_pay.id,
-                'property_account_position': fposition.id
-            })
-        else:
-            # Actualizar los datos del partner
-            if partner_brw.country_id != country:
-                partner_brw.country_id = country
-            if partner_brw.name != partner['name']:
-                partner_brw.name = partner['name']
-            if partner_brw.property_account_position != fposition:
-                partner_brw.property_account_position = fposition
-        
-        vals.update({
-            'partner_id': partner_brw.id,
-            'account_id': partner_brw.property_account_receivable.id,
-            'fiscal_position': partner_brw.property_account_position.id
-        })
         """
 
         # INVOICE

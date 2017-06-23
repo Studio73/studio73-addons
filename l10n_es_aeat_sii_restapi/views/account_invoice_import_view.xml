@@ -25,6 +25,8 @@
             <field name="arch" type="xml">
                 <form string="">
                     <header>
+                        <button name="to_invoice" states="draft" type="object" string="Validate" class="oe_highlight"/>
+                        <button name="to_draft" states="validated" type="object" string="To draft" class="oe_highlight"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,validated"/>
                     </header>
                     <sheet>

@@ -3,10 +3,89 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import models, fields, api, _
+from openerp.exceptions import Warning
 
 
 class AccountInvoiceImport(models.Model):
     _name = 'account.invoice.import'
+
+    @api.multi
+    def to_invoice(self):
+        account_invoice_obj = self.env["account.invoice"]
+        for inv_import in self:
+            partner = inv_import.get_partner()
+            invoice = account_invoice_obj.create({
+                "partner_id": partner.id,
+                "account_id": partner.property_account_receivable.id,
+                "fiscal_position": partner.property_account_position and partner.property_account_position.id or False,
+            })
+            inv_import.invoice_id = invoice.id
+            inv_import.state = "validated"
+        return True
+
+    @api.multi
+    def to_draft(self):
+        for inv_import in self:
+            invoice = inv_import.invoice_id
+            if invoice:
+                invoice.action_cancel()
+                invoice.unlink()
+            inv_import.state = "draft"
+        return True
+
+    @api.multi
+    def get_partner(self):
+        self.ensure_one()
+
+        res_partner_obj = self.env["res.partner"]
+        account_account_obj = self.env["account.account"]
+
+        partner = res_partner_obj.search([("vat", "=", self.vat)], limit=1)
+        fposition = self.get_fposition()
+
+        if not partner:
+            account_rec = account_account_obj.search([('code', 'like', '430000')], limit=1)
+            account_pay = account_account_obj.search([('code', 'like', '410000')], limit=1)
+            if not (account_rec or account_pay):
+                raise Warning(_('Company is not available to receive invoices. Contact with the IT support team'))
+
+            partner = res_partner_obj.create({
+                'name': partner['name'],
+                'vat': partner['vat'],
+                'country_id': self.country_id.id,
+                'property_account_receivable': account_rec.id,
+                'property_account_payable': account_pay.id,
+                'property_account_position': fposition.id,
+            })
+        else:
+            if partner.country_id != self.country_id:
+                partner.country_id = self.country_id
+            if partner.name != partner['name']:
+                partner.name = partner['name']
+            if partner.property_account_position != fposition:
+                partner.property_account_position = fposition.id
+
+        return partner
+
+    @api.multi
+    def get_fposition(self):
+        self.ensure_one()
+
+        account_fiscal_pos_obj = self.env["account.fiscal.position"]
+
+        europe_group = self.env["res.country.group"].search([("name", "=", "Europe")], limit=1)
+        europe = europe_group.mapped('country_ids.code')
+
+        country = self.country_id
+        # Conseguir la posicion fiscal en base al pais
+        if country.code == 'ES':
+            fposition = account_fiscal_pos_obj.search([('name', '=', u'Régimen Nacional')], limit=1)
+        elif country.code in europe:
+            fposition = account_fiscal_pos_obj.search([('name', '=', u'Régimen Intracomunitario')], limit=1)
+        else:
+            fposition = account_fiscal_pos_obj.search([('name', 'like', u'Régimen Extracomunitario')], limit=1)
+
+        return fposition
 
     def _get_default_invoice_type(self):
         type = self._context.get("type", False)
@@ -96,6 +175,7 @@ class AccountInvoiceImport(models.Model):
     realproperty_cadastrial_code = fields.Char(string="Real property cadastrial code")
     state = fields.Selection(string="State", selection=[("draft", "Draft"),
                                                         ("validated", "Validated")], default="draft")
+    invoice_id = fields.Many2one("account.invoice", string="Invoice")
 
 
 class AccountInvoiceImportLine(models.Model):
