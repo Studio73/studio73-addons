@@ -174,9 +174,6 @@ class AccountInvoiceController(Controller):
             if not line['base']:
                 return self._error(4303, _('Invoice line base is missing'))
 
-        print kwargs
-        print ""
-        print vals
         vals["invoice_date"] = vals["date_invoice"]
         vals["name"] = partner["name"]
         vals["vat"] = partner["vat"]
