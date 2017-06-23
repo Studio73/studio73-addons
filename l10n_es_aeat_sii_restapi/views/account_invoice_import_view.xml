@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+	<data>
+		<record id="account_invoice_import_tree" model="ir.ui.view">
+		    <field name="name">account.invoice.import.tree</field>
+		    <field name="model">account.invoice.import</field>
+		    <field name="arch" type="xml">
+		        <tree>
+		            <field name="operation"/>
+                    <field name="name"/>
+                    <field name="country_id"/>
+                    <field name="number"/>
+                    <field name="invoice_type"/>
+                    <field name="description"/>
+                    <field name="invoice_date"/>
+                    <field name="base"/>
+                    <field name="tax_amount"/>
+		        </tree>
+		    </field>
+		</record>
+
+        <record id="account_invoice_import_form" model="ir.ui.view">
+            <field name="name">account.invoice.import.form</field>
+		    <field name="model">account.invoice.import</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="operation"/>
+                                <field name="name"/>
+                                <field name="vat"/>
+                                <field name="vat_type"/>
+                                <field name="country_id"/>
+                                <field name="type" invisible="1"/>
+                                <field name="number"/>
+                                <field name="invoice_type"/>
+                                <field name="refund_type" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])]}"/>
+                                <field name="rectified_invoices_number"/>
+                                <field name="supplier_number" attrs="{'required': [('type', 'in', ['in_invoice', 'in_refund'])], 'invisible': [('type', 'in', ['out_invoice', 'out_refund'])]}"/>
+                            </group>
+                            <group>
+                                <field name="description"/>
+                                <field name="invoice_date"/>
+                                <field name="transaction_date"/>
+                                <field name="record_date"/>
+                                <field name="period_id"/>
+                                <field name="fiscalyear_id"/>
+                                <field name="registration_key_id"/>
+                                <field name="currency"/>
+                                <field name="third_party"/>
+                                <field name="third_party_number" attrs="{'required': [('third_party', '=', True)], 'invisible': [('third_party', '=', False)]}"/>
+                                <field name="base"/>
+                                <field name="tax_amount"/>
+                            </group>
+                        </group>
+                        <separator string="Lines"/>
+                        <field name="line_ids">
+                            <tree editable="top">
+                                <field name="type"/>
+                                <field name="base"/>
+                                <field name="tax_type"/>
+                                <field name="re_type"/>
+                                <field name="tax_amount"/>
+                                <field name="re_amount"/>
+                            </tree>
+                        </field>
+                        <group>
+                            <group>
+                                <field name="payment_date"/>
+                                <field name="payment_amount"/>
+                                <field name="collection_payment_method"/>
+                            </group>
+                            <group>
+                                <field name="bank_account"/>
+                                <field name="realproperty_location"/>
+                                <field name="realproperty_cadastrial_code"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="account_invoice_import_search" model="ir.ui.view">
+		    <field name="name">account.invoice.import.search</field>
+		    <field name="model">account.invoice.import</field>
+		    <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="number"/>
+		        </search>
+		    </field>
+		</record>
+
+        <record id="action_customer_out_invoice_import_tree" model="ir.actions.act_window">
+            <field name="name">Customer Invoices</field>
+            <field name="res_model">account.invoice.import</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','out_invoice')]</field>
+            <field name="context">{'default_type':'out_invoice', 'type':'out_invoice'}</field>
+            <!--<field name="search_view_id" ref="view_account_invoice_filter"/>-->
+        </record>
+
+        <record id="action_customer_out_refund_import_tree" model="ir.actions.act_window">
+            <field name="name">Customer Refunds</field>
+            <field name="res_model">account.invoice.import</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','out_refund')]</field>
+            <field name="context">{'default_type':'out_refund', 'type':'out_refund'}</field>
+            <!--<field name="search_view_id" ref="view_account_invoice_filter"/>-->
+        </record>
+
+        <record id="action_supplier_in_invoice_import_tree" model="ir.actions.act_window">
+            <field name="name">Supplier Invoices</field>
+            <field name="res_model">account.invoice.import</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','in_invoice')]</field>
+            <field name="context">{'default_type':'in_invoice', 'type':'in_invoice'}</field>
+            <!--<field name="search_view_id" ref="view_account_invoice_filter"/>-->
+        </record>
+
+        <record id="action_supplier_in_refund_import_tree" model="ir.actions.act_window">
+            <field name="name">Supplier Refunds</field>
+            <field name="res_model">account.invoice.import</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field eval="False" name="view_id"/>
+            <field name="domain">[('type','=','in_refund')]</field>
+            <field name="context">{'default_type':'in_refund', 'type':'in_refund'}</field>
+            <!--<field name="search_view_id" ref="view_account_invoice_filter"/>-->
+        </record>
+
+        <menuitem name="Customers"
+            id="menu_customer_invoice_import"
+            parent="account.menu_finance"
+            sequence="1"/>
+
+        <menuitem action="action_customer_out_invoice_import_tree"
+                  id="menu_customer_out_invoice_import_tree"
+                  parent="menu_customer_invoice_import"/>
+
+        <menuitem action="action_customer_out_refund_import_tree"
+                  id="menu_customer_out_refund_import_tree"
+                  parent="menu_customer_invoice_import"/>
+
+        <menuitem name="Suppliers"
+            id="menu_supplier_invoice_import"
+            parent="account.menu_finance"
+            sequence="1"/>
+
+        <menuitem action="action_supplier_in_invoice_import_tree"
+                  id="menu_supplier_in_invoice_import_tree"
+                  parent="menu_supplier_invoice_import"/>
+
+        <menuitem action="action_supplier_in_refund_import_tree"
+                  id="menu_supplier_in_refund_import_tree"
+                  parent="menu_supplier_invoice_import"/>
+
+
+	</data>
+</openerp>

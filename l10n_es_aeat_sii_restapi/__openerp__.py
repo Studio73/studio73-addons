@@ -13,6 +13,8 @@
         "l10n_es_aeat_sii",
     ],
     "data": [
+        'views/account_invoice_import_view.xml',
+        'security/ir.model.access.csv',
     ],
     "application": False,
     "installable": True,
