@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 # (c) 2017 Studio73 - Pablo Fuentes <pablo@studio73>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-import json
 from datetime import datetime
-from werkzeug import wrappers
 
 from openerp import http, _
 from openerp.http import request
 from openerp.http import Controller
-from openerp.addons.web.controllers.main import Session
 
 LINE_TYPES = [
     'S1', 'S2', 'S3', 'S20', 'E21', 'E22', 'E23',
