@@ -29,7 +29,7 @@ class AccountInvoiceController(Controller):
         '/api/account.invoice/', type='json', methods=['POST'], auth='user'
     )
     def account_invoice_create(self, **kwargs):
-        vals = {}
+        vals = kwargs
 
         # PARTNER
         if not kwargs.get('partner', False):
@@ -48,21 +48,12 @@ class AccountInvoiceController(Controller):
         if not country:
             return self._error(4104, _('Country code is not allowed'))
 
-        """
-        # TODO ¿Que es esto?
-        if not (account_rec or account_pay):
-            return self._error(5101,
-                               _('Company is not available to receive'
-                                 ' invoices. Contact with the'
-                                 ' IT support team'))
-        """
-
         # INVOICE
-        if not kwargs.get('date', False):
-            vals['date_invoice'] = datetime.today().strftime('%Y-%m-%d')
+        if not kwargs.get('invoice_date', False):
+            vals['invoice_date'] = datetime.today().strftime('%Y-%m-%d')
         else:
-            if self.check_date_type(kwargs['date']):
-                vals['date_invoice'] = kwargs['date']
+            if self.check_date_type(kwargs['invoice_date']):
+                vals['invoice_date'] = kwargs['invoice_date']
             else:
                 return self._error(4205, _('Wrong date type'))
 
@@ -74,7 +65,7 @@ class AccountInvoiceController(Controller):
                                   'in_invoice', 'in_refund']:
             return self._error(4201, _('Wrong invoice type'))
 
-        vals['invoice_type'] = kwargs['type']
+        vals['type'] = kwargs['type']
 
         if kwargs['type'] in ['in_invoice', 'in_refund']:
             if not kwargs.get('supplier_number', False):
@@ -121,13 +112,9 @@ class AccountInvoiceController(Controller):
             if not line['base']:
                 return self._error(4303, _('Invoice line base is missing'))
 
-        vals["invoice_date"] = vals["date_invoice"]
         vals["name"] = partner["name"]
         vals["vat"] = partner["vat"]
         vals["country_id"] = country.id
-        vals["type"] = vals["invoice_type"]
-        # TODO
-        vals["invoice_type"] = False
         # TODO
         vals["description"] = "Test"
         lines = kwargs["lines"]
@@ -135,7 +122,46 @@ class AccountInvoiceController(Controller):
         vals["tax_amount"] = sum(l.get("tax_amount", 0) for l in lines)
         vals["line_ids"] = [(0, 0, l) for l in lines]
 
-        invoice_import = request.env['account.invoice.import'].create(vals)
+        period_id = False
+        if vals.get("period", False) and vals.get("year", False):
+            period_id = request.env['account.period']\
+                .search([('code', '=',
+                          '%s/%s' % (vals["period"], vals["year"]))])
+
+        if not period_id:
+            period_id = request.env['account.period'].find(vals["invoice_date"])
+
+        vals["period_id"] = period_id.id
+        vals["fiscalyear_id"] = period_id.fiscalyear_id.id
+
+        if kwargs.get("operation",'A0') == 'A0':
+            try:
+                inv_exists = request.env['account.invoice.import'].search(
+                    [('number','=',vals['number'])])
+                if inv_exists:
+                    return self._error(4308, _('Duplicated invoice number,'
+                                               ' use A1 operation to substitute it'))
+                invoice_import = request.env['account.invoice.import'].create(
+                    vals)
+                invoice_import.to_invoice()
+            except Exception as e:
+                print str(e)
+                return self._error(5101,
+                                   _('Company is not available to receive'
+                                     ' invoices. Contact with the'
+                                     ' IT support team'))
+        elif kwargs["operation"] == 'A1':
+            invoice_import = request.env['account.invoice.import'].search(
+                [('number', '=', vals['number'])])
+            if not invoice_import:
+                return self._error(4307, _('The invoice number does not exist,'
+                                           ' use A0 operation to create it'))
+            invoice_import.to_draft()
+            invoice_import.write(vals)
+            invoice_import.to_invoice()
+        else:
+            return self._error(4309, _('Operation is not valid'))
+
 
         return {
             'result': invoice_import.id,
@@ -144,10 +170,10 @@ class AccountInvoiceController(Controller):
 
     def check_date_type(self, date):
         try:
-            datetime.strptime(date)
+            datetime.strptime(date, '%d/%m/%Y')
         except Exception:
             try:
-                datetime.strptime(date)
+                datetime.strptime(date, '%d-%m-%Y')
             except Exception:
                 return False
         return True
