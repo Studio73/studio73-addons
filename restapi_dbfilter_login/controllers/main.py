@@ -15,10 +15,7 @@ class SessionCtrl(Session):
                         .get('HTTP_HOST', '').split(':')[0].replace('.', '-')
         if not db:
             return ''
-        try:
-            request.session.authenticate(db, login, password)
-        except:
-            return ''
+        request.session.authenticate(db, login, password)
         return request.session_id
 
     @http.route('/api/logout', type='json', auth="user")

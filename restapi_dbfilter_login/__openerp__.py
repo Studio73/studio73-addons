@@ -10,7 +10,7 @@
     """,
     'author': 'Consultoría Informática Studio 73 S.L.',
     'website': 'http://www.studio73.es',
-    'depends': ['base'],
+    'depends': ['web', 'jsonrequest_exception_disable_traceback'],
     'data': [],
     'installable': True
 }
