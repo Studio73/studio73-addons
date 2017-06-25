@@ -186,8 +186,11 @@ class AccountInvoiceImport(models.Model):
     record_date = fields.Date(string="Record date")
     period_id = fields.Many2one("account.period", string="Period")
     fiscalyear_id = fields.Many2one("account.fiscalyear", string="Year")
-    registration_key_id = fields.Many2one("aeat.sii.mapping.registration.keys", string="Registration key",
+    registration_key_id = fields.Many2one("aeat.sii.mapping.registration.keys",
+                                          string="Registration key",
                                           default=_get_default_registration_key)
+    registration_key_id_code = fields.Char(related='registration_key_id.code',
+                                           string="Registration key code")
     currency = fields.Char(string="Currency", default="EUR")
     third_party = fields.Boolean(string="Third party", default=False)
     third_party_number = fields.Char(string="Third party number")
