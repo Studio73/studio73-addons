@@ -101,7 +101,7 @@
 		</record>
 
         <record id="action_customer_out_invoice_import_tree" model="ir.actions.act_window">
-            <field name="name">Issued Invoices</field>
+            <field name="name">Issued invoices</field>
             <field name="res_model">account.invoice.import</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -123,7 +123,7 @@
         </record>
 
         <record id="action_supplier_in_invoice_import_tree" model="ir.actions.act_window">
-            <field name="name">Received Invoices</field>
+            <field name="name">Received invoices</field>
             <field name="res_model">account.invoice.import</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -144,7 +144,7 @@
             <!--<field name="search_view_id" ref="view_account_invoice_filter"/>-->
         </record>
 
-        <menuitem name="Customers"
+        <menuitem name="Ledger of issued invoices"
             id="menu_customer_invoice_import"
             parent="account.menu_finance"
             sequence="1"/>
@@ -157,7 +157,7 @@
                   id="menu_customer_out_refund_import_tree"
                   parent="menu_customer_invoice_import"/>
 
-        <menuitem name="Suppliers"
+        <menuitem name="Ledger of received invoices"
             id="menu_supplier_invoice_import"
             parent="account.menu_finance"
             sequence="1"/>

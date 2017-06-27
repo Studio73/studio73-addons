@@ -145,9 +145,9 @@ class AccountInvoiceImport(models.Model):
 
     operation = fields.Selection(string="Operation", selection=[("A0", "A0 - Register new invoice"),
                                                                 ("A1", "A1 - Modify existing invoice")], default="A0")
-    name = fields.Char(string="Partner name", required=True)
-    vat = fields.Char(string="Partner VAT", required=True)
-    vat_type = fields.Selection(string="VAT type", selection=[('02', u'02 - NIF- VAT'),
+    name = fields.Char(string="Issuer name", required=True)
+    vat = fields.Char(string="Issuer VAT-Id number", required=True)
+    vat_type = fields.Selection(string=" VAT-Id Type", selection=[('02', u'02 - NIF- VAT'),
                                                                     ('03', u'03 - Passport'),
                                                                     ('04', u'04 - Official id document'
                                                                            u' issued by the country'
