@@ -54,7 +54,7 @@
                                 <field name="record_date"/>
                                 <field name="period_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="fiscalyear_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
-                                <field name="registration_key_id"/>
+                                <field name="registration_key_id" domain="[('type', '=', 'sale')]"/>
                                 <field name="registration_key_id_code" invisible="True"/>
                                 <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="third_party"/>
@@ -146,7 +146,7 @@
                                 <field name="record_date"/>
                                 <field name="period_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="fiscalyear_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
-                                <field name="registration_key_id"/>
+                                <field name="registration_key_id"  domain="[('type', '=', 'purchase')]"/>
                                 <field name="registration_key_id_code" invisible="True"/>
                                 <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="third_party"/>
