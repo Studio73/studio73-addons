@@ -8,6 +8,10 @@ from openerp.exceptions import Warning
 
 class AccountInvoiceImport(models.Model):
     _name = 'account.invoice.import'
+    """
+    Tax amount -> Base * tax type
+    Surcharge amount -> Base * surcharge type
+    """
 
     @api.multi
     def to_invoice(self):
@@ -182,8 +186,8 @@ class AccountInvoiceImport(models.Model):
                                     default=_get_default_invoice_type)
     refund_type = fields.Selection(string="Refund type", selection=[("S", "S - Substitutes entirely the original invoice."),
                                                                     ("I", "I - Corrects the original invoice by adding/substracting the amounts on it to the original invoice amounts.")])
-    rectified_invoices_number = fields.Char(string="Rectified invoices number")
-    supplier_number = fields.Char(string="Supplier number")
+    rectified_invoices_number = fields.Char(string="Number(s) of the invoice(s) rectified")
+    supplier_number = fields.Char(string="Supplier’s invoice number")
     description = fields.Char(string="Operation description", required=True)
     invoice_date = fields.Date(string="Invoice date", required=True)
     transaction_date = fields.Date(string="Transaction date")
@@ -260,7 +264,30 @@ class AccountInvoiceImportLine(models.Model):
                                        # ("N1", u"No sujeta, si la sujeción es por operaciones no sujetas en el TAI por reglas de localización")
                                        ])
     base = fields.Float(string="Base")
-    tax_type = fields.Float(string="Tax type")
-    re_type = fields.Float(string="Surcharge type")
-    tax_amount = fields.Float(string="Tax amount")
-    re_amount = fields.Float(string="Surcharge amount")
+    tax_type = fields.Selection(string="Tax type", selection=[("0", 0),
+                                                              ("4", 4),
+                                                              ("7", 7),
+                                                              ("8", 8),
+                                                              ("10", 10),
+                                                              ("16", 16),
+                                                              ("18", 18),
+                                                              ("21", 21)])
+    re_type = fields.Selection(string="Surcharge type", selection=[("0", 0),
+                                                                   ("0.5", 0.5),
+                                                                   ("1.4", 1.4),
+                                                                   ("1.75", 1.75),
+                                                                   ("5.2", 5.2)])
+    tax_amount = fields.Float(string="Tax amount", store=True, compute="_calculate_tax_amount")
+    re_amount = fields.Float(string="Surcharge amount", store=True, compute="_calculate_re_amount")
+
+    @api.multi
+    @api.depends("base", "tax_type")
+    def _calculate_tax_amount(self):
+        for line in self:
+            line.tax_amount = line.base * (((line.tax_type and float(line.tax_type)) / 100) or 0)
+
+    @api.multi
+    @api.depends("base", "re_type")
+    def _calculate_re_amount(self):
+        for line in self:
+            line.re_amount = line.base * (((line.re_type and float(line.re_type)) / 100) or 0)
