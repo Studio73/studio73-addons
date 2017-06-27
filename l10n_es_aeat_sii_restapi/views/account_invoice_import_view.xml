@@ -99,7 +99,7 @@
 		</record>
 
         <record id="action_customer_out_invoice_import_tree" model="ir.actions.act_window">
-            <field name="name">Customer Invoices</field>
+            <field name="name">Issued Invoices</field>
             <field name="res_model">account.invoice.import</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -110,7 +110,7 @@
         </record>
 
         <record id="action_customer_out_refund_import_tree" model="ir.actions.act_window">
-            <field name="name">Customer Refunds</field>
+            <field name="name">Rectified/amended issued invoices</field>
             <field name="res_model">account.invoice.import</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -121,7 +121,7 @@
         </record>
 
         <record id="action_supplier_in_invoice_import_tree" model="ir.actions.act_window">
-            <field name="name">Supplier Invoices</field>
+            <field name="name">Received Invoices</field>
             <field name="res_model">account.invoice.import</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -132,7 +132,7 @@
         </record>
 
         <record id="action_supplier_in_refund_import_tree" model="ir.actions.act_window">
-            <field name="name">Supplier Refunds</field>
+            <field name="name">Rectified/amended received invoices</field>
             <field name="res_model">account.invoice.import</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
