@@ -40,7 +40,7 @@
                                 <field name="number"/>
                                 <field name="invoice_type"/>
                                 <field name="refund_type" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])]}"/>
-                                <field name="rectified_invoices_number"/>
+                                <field name="rectified_invoices_number" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])]}"/>
                                 <field name="supplier_number" attrs="{'required': [('type', 'in', ['in_invoice', 'in_refund'])], 'invisible': [('type', 'in', ['out_invoice', 'out_refund'])]}"/>
                             </group>
                             <group>
@@ -55,8 +55,6 @@
                                 <field name="currency"/>
                                 <field name="third_party"/>
                                 <field name="third_party_number" attrs="{'required': [('third_party', '=', True)], 'invisible': [('third_party', '=', False)]}"/>
-                                <field name="base"/>
-                                <field name="tax_amount"/>
                             </group>
                         </group>
                         <separator string="Lines"/>
@@ -70,6 +68,10 @@
                                 <field name="re_amount"/>
                             </tree>
                         </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="tax_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="base" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
                         <group>
                             <group>
                                 <field name="payment_date" attrs="{'invisible': [('registration_key_id_code', '!=', '07')]}"/>

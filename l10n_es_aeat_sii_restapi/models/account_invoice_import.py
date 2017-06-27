@@ -194,8 +194,8 @@ class AccountInvoiceImport(models.Model):
     currency = fields.Char(string="Currency", default="EUR")
     third_party = fields.Boolean(string="Third party", default=False)
     third_party_number = fields.Char(string="Third party number")
-    base = fields.Float(string="Base")
-    tax_amount = fields.Float(string="Tax amount")
+    base = fields.Float(string="Base", store=True, compute="_calculate_amount")
+    tax_amount = fields.Float(string="Tax amount", store=True, compute="_calculate_amount")
     line_ids = fields.One2many(comodel_name="account.invoice.import.line", inverse_name="invoice_import_id",
                                     string="Lines", required=True)
     payment_date = fields.Date(string="Payment date")
@@ -215,6 +215,13 @@ class AccountInvoiceImport(models.Model):
     state = fields.Selection(string="State", selection=[("draft", "Draft"),
                                                         ("validated", "Validated")], default="draft")
     invoice_id = fields.Many2one("account.invoice", string="Invoice")
+
+    @api.multi
+    @api.depends("line_ids", "line_ids.base", "line_ids.tax_amount")
+    def _calculate_amount(self):
+        for imp in self:
+            self.base = sum(l.base for l in imp.line_ids)
+            self.tax_amount = sum(l.tax_amount for l in imp.line_ids)
 
 
 class AccountInvoiceImportLine(models.Model):
