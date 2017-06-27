@@ -220,6 +220,20 @@ class AccountInvoiceImport(models.Model):
                                                         ("validated", "Validated")], default="draft")
     invoice_id = fields.Many2one("account.invoice", string="Invoice")
 
+    @api.onchange("invoice_date")
+    def onchange_invoice_date(self):
+        invoice_date = self.invoice_date
+        self.transaction_date = invoice_date
+        self.record_date = invoice_date
+
+    @api.onchange("record_date")
+    def onchange_record_date(self):
+        if self.record_date:
+            period = self.env["account.period"].find(dt=self.record_date)
+            if period:
+                self.period_id = period.id
+                self.fiscalyear_id = period.fiscalyear_id.id
+
     @api.multi
     @api.depends("line_ids", "line_ids.base", "line_ids.tax_amount")
     def _calculate_amount(self):
