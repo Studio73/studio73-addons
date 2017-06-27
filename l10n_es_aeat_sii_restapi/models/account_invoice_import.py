@@ -139,6 +139,10 @@ class AccountInvoiceImport(models.Model):
         registration_key = self.env["aeat.sii.mapping.registration.keys"].search(domain)
         return registration_key and registration_key.id or False
 
+    def _get_default_currency(self):
+        currency = self.env["res.currency"].search([("name", "=", "EUR")])
+        return currency or False
+
     operation = fields.Selection(string="Operation", selection=[("A0", "A0 - Register new invoice"),
                                                                 ("A1", "A1 - Modify existing invoice")], default="A0")
     name = fields.Char(string="Partner name", required=True)
@@ -191,7 +195,7 @@ class AccountInvoiceImport(models.Model):
                                           default=_get_default_registration_key)
     registration_key_id_code = fields.Char(related='registration_key_id.code',
                                            string="Registration key code")
-    currency = fields.Char(string="Currency", default="EUR")
+    currency_id = fields.Many2one("res.currency", string="Currency", default=_get_default_currency)
     third_party = fields.Boolean(string="Third party", default=False)
     third_party_number = fields.Char(string="Third party number")
     base = fields.Float(string="Base", store=True, compute="_calculate_amount")

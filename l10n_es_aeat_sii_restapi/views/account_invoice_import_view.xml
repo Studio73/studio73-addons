@@ -52,7 +52,7 @@
                                 <field name="fiscalyear_id"/>
                                 <field name="registration_key_id"/>
                                 <field name="registration_key_id_code" invisible="True"/>
-                                <field name="currency"/>
+                                <field name="currency_id"/>
                                 <field name="third_party"/>
                                 <field name="third_party_number" attrs="{'required': [('third_party', '=', True)], 'invisible': [('third_party', '=', False)]}"/>
                             </group>
