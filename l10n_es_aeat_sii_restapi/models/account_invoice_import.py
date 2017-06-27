@@ -92,11 +92,12 @@ class AccountInvoiceImport(models.Model):
 
             partner = res_partner_obj.create({
                 'name': self.name,
-                'vat': self.vat,
+                'vat': "%s%s" %(self.country_id.code, self.vat),
                 'country_id': self.country_id.id,
                 'property_account_receivable': account_rec.id,
                 'property_account_payable': account_pay.id,
                 'property_account_position': fposition.id,
+                'type': 'default',
             })
         else:
             if partner.country_id != self.country_id:
