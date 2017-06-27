@@ -160,31 +160,31 @@ class AccountInvoiceImport(models.Model):
                                                                     ('05', u'05 - Certificate of residence'),
                                                                     ('06', u'06 - Other documents'),
                                                                     ('07', u'07 - NO CENSUS')
-                                                                    ], default="02")
+                                                                    ], default="02", required=True)
     country_id = fields.Many2one("res.country", string="Country", required=True)
     type = fields.Selection(string="Type", required=True, selection=[('out_invoice', _('Issued invoice')),
                                                                      ('in_invoice', _('Received invoice')),
                                                                      ('out_refund', _('Rectified/amended issued invoice')),
                                                                      ('in_refund', _('Rectified/amended received invoice'))])
     number = fields.Char(string="Number", required=True)
-    invoice_type = fields.Selection(string="Invoice type", selection=[("F1", u"Regular invoice"),
-                                                                      ("F2", u"Simplified invoice (ticket)"),
-                                                                      ("F3", u"Invoice replacing"
+    invoice_type = fields.Selection(string="Invoice type", selection=[("F1", u"F1 - Regular invoice"),
+                                                                      ("F2", u"F2 - Simplified invoice (ticket)"),
+                                                                      ("F3", u"F3 - Invoice replacing"
                                                                              u" simplified invoices"
                                                                              u" billed and declared"),
-                                                                      ("F4", u"Record including a set of invoices"),
-                                                                      ("F5", u"Import registers ( DUA)"),
-                                                                      ("F6", u"Accounting records"),
-                                                                      ("R1", u"Rectified/Amended invoice"
+                                                                      ("F4", u"F4 - Record including a set of invoices"),
+                                                                      ("F5", u"F5 - Import registers ( DUA)"),
+                                                                      ("F6", u"F6 - Accounting records"),
+                                                                      ("R1", u"R1 - Rectified/Amended invoice"
                                                                              u" (Error well founded"
                                                                              u" in law and Art. 80 "
                                                                              u"One Two and Six Spanish"
                                                                              u" VAT Act)"),
-                                                                      ("R2", u"Rectified/Amended invoice (ART. 80.3 LIVA)"),
-                                                                      ("R3", u"Rectified/Amended invoice (Art. 80.4 LIVA)"),
-                                                                      ("R4", u"Rectified/Amended invoice (All cases)"),
-                                                                      ("R5", u"Rectified/Amended Bill on simplified invoices")],
-                                    default=_get_default_invoice_type)
+                                                                      ("R2", u"R2 - Rectified/Amended invoice (ART. 80.3 LIVA)"),
+                                                                      ("R3", u"R3 - Rectified/Amended invoice (Art. 80.4 LIVA)"),
+                                                                      ("R4", u"R4 - Rectified/Amended invoice (All cases)"),
+                                                                      ("R5", u"R5 - Rectified/Amended Bill on simplified invoices")],
+                                    default=_get_default_invoice_type, required=True)
     refund_type = fields.Selection(string="Refund type", selection=[("S", "S - Substitutes entirely the original invoice."),
                                                                     ("I", "I - Corrects the original invoice by adding/substracting the amounts on it to the original invoice amounts.")])
     rectified_invoices_number = fields.Char(string="Number(s) of the invoice(s) rectified")
@@ -197,7 +197,8 @@ class AccountInvoiceImport(models.Model):
     fiscalyear_id = fields.Many2one("account.fiscalyear", string="Year")
     registration_key_id = fields.Many2one("aeat.sii.mapping.registration.keys",
                                           string="Registration key",
-                                          default=_get_default_registration_key)
+                                          default=_get_default_registration_key,
+                                          required=True)
     registration_key_id_code = fields.Char(related='registration_key_id.code',
                                            string="Registration key code")
     currency_id = fields.Many2one("res.currency", string="Currency", default=_get_default_currency)
@@ -263,21 +264,23 @@ class AccountInvoiceImportLine(models.Model):
                                        ("E6", u"E6 - Exempt others encompassing E1 to E6."),
                                        # ("N0", u"N0 - No sujeta, si la sujeción es por el art. 7, 14, otros"),
                                        # ("N1", u"No sujeta, si la sujeción es por operaciones no sujetas en el TAI por reglas de localización")
-                                       ])
+                                       ], default="S1", required=True)
     base = fields.Float(string="Base")
-    tax_type = fields.Selection(string="Tax type", selection=[("0", 0),
-                                                              ("4", 4),
-                                                              ("7", 7),
-                                                              ("8", 8),
-                                                              ("10", 10),
-                                                              ("16", 16),
-                                                              ("18", 18),
-                                                              ("21", 21)])
-    re_type = fields.Selection(string="Surcharge type", selection=[("0", 0),
-                                                                   ("0.5", 0.5),
-                                                                   ("1.4", 1.4),
-                                                                   ("1.75", 1.75),
-                                                                   ("5.2", 5.2)])
+    tax_type = fields.Selection(string="Tax type", selection=[("0", '0%'),
+                                                              ("4", '4%'),
+                                                              ("7", '7%'),
+                                                              ("8", '8%'),
+                                                              ("10", '10%'),
+                                                              ("16", '16%'),
+                                                              ("18", '18%'),
+                                                              ("21", '21%')],
+                                default="21", required=True)
+    re_type = fields.Selection(string="Surcharge type",
+                               selection=[("0", '0%'),
+                                          ("0.5", '0.5%'),
+                                          ("1.4", '1.4%'),
+                                          ("1.75", '1.75%'),
+                                          ("5.2", '5.2%')])
     tax_amount = fields.Float(string="Tax amount", store=True, compute="_calculate_tax_amount")
     re_amount = fields.Float(string="Surcharge amount", store=True, compute="_calculate_re_amount")
 
