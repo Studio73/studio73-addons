@@ -35,7 +35,7 @@
                                 <field name="name"/>
                                 <field name="vat"/>
                                 <field name="vat_type"/>
-                                <field name="country_id"/>
+                                <field name="country_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="type" invisible="1"/>
                                 <field name="number"/>
                                 <field name="invoice_type"/>
@@ -48,11 +48,11 @@
                                 <field name="invoice_date"/>
                                 <field name="transaction_date"/>
                                 <field name="record_date"/>
-                                <field name="period_id"/>
-                                <field name="fiscalyear_id"/>
+                                <field name="period_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name="fiscalyear_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="registration_key_id"/>
                                 <field name="registration_key_id_code" invisible="True"/>
-                                <field name="currency_id"/>
+                                <field name="currency_id" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="third_party"/>
                                 <field name="third_party_number" attrs="{'required': [('third_party', '=', True)], 'invisible': [('third_party', '=', False)]}"/>
                             </group>
