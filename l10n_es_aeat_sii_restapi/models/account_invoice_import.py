@@ -8,10 +8,6 @@ from openerp.exceptions import Warning
 
 class AccountInvoiceImport(models.Model):
     _name = 'account.invoice.import'
-    """
-    Tax amount -> Base * tax type
-    Surcharge amount -> Base * surcharge type
-    """
 
     @api.multi
     def to_invoice(self):
@@ -142,11 +138,15 @@ class AccountInvoiceImport(models.Model):
         else:
             domain.append(("type", "=", "purchase"))
         registration_key = self.env["aeat.sii.mapping.registration.keys"].search(domain)
-        return registration_key and registration_key.id or False
+        return registration_key or False
 
     def _get_default_currency(self):
         currency = self.env["res.currency"].search([("name", "=", "EUR")])
         return currency or False
+
+    def _get_default_company(self):
+        company_id = self.env["res.users"]._get_company()
+        return company_id and self.env["res.company"].browse(company_id) or False
 
     operation = fields.Selection(string="Operation", selection=[("A0", "A0 - Register new invoice"),
                                                                 ("A1", "A1 - Modify existing invoice")], default="A0")
@@ -225,6 +225,7 @@ class AccountInvoiceImport(models.Model):
     state = fields.Selection(string="State", selection=[("draft", "Draft"),
                                                         ("validated", "Validated")], default="draft")
     invoice_id = fields.Many2one("account.invoice", string="Invoice")
+    company_id = fields.Many2one("res.company", string="Company", required=True, default=_get_default_company)
 
     @api.onchange("invoice_date")
     def onchange_invoice_date(self):
