@@ -150,23 +150,23 @@ class AccountInvoiceImport(models.Model):
 
     operation = fields.Selection(string="Operation", selection=[("A0", "A0 - Register new invoice"),
                                                                 ("A1", "A1 - Modify existing invoice")], default="A0")
-    name = fields.Char(string="Issuer name", required=True)
-    vat = fields.Char(string="Issuer VAT-Id number", required=True)
-    vat_type = fields.Selection(string=" VAT-Id Type", selection=[('02', u'02 - NIF- VAT'),
-                                                                    ('03', u'03 - Passport'),
-                                                                    ('04', u'04 - Official id document'
-                                                                           u' issued by the country'
-                                                                           u' or territory of residence'),
-                                                                    ('05', u'05 - Certificate of residence'),
-                                                                    ('06', u'06 - Other documents'),
-                                                                    ('07', u'07 - NO CENSUS')
-                                                                    ], default="02", required=True)
-    country_id = fields.Many2one("res.country", string="Country", required=True)
+    name = fields.Char(string="Invoice recipient name", required=True)
+    vat = fields.Char(string="Recipient’s VAT-Id number", required=True)
+    vat_type = fields.Selection(string="Recipient’s VAT-Id Type", selection=[('02', u'02 - NIF- VAT'),
+                                                                             ('03', u'03 - Passport'),
+                                                                             ('04', u'04 - Official id document'
+                                                                                    u' issued by the country'
+                                                                                    u' or territory of residence'),
+                                                                             ('05', u'05 - Certificate of residence'),
+                                                                             ('06', u'06 - Other documents'),
+                                                                             ('07', u'07 - NO CENSUS')
+                                                                             ], default="02", required=True)
+    country_id = fields.Many2one("res.country", string="Recipient’s country", required=True)
     type = fields.Selection(string="Type", required=True, selection=[('out_invoice', _('Issued invoice')),
                                                                      ('in_invoice', _('Received invoice')),
                                                                      ('out_refund', _('Rectified/amended issued invoice')),
                                                                      ('in_refund', _('Rectified/amended received invoice'))])
-    number = fields.Char(string="Number", required=True)
+    number = fields.Char(string="Invoice number", required=True)
     invoice_type = fields.Selection(string="Invoice type", selection=[("F1", u"F1 - Regular invoice"),
                                                                       ("F2", u"F2 - Simplified invoice (ticket)"),
                                                                       ("F3", u"F3 - Invoice replacing"

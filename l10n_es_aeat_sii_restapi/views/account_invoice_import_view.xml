@@ -101,9 +101,9 @@
             <field name="priority">2</field>
 		    <field name="arch" type="xml">
 		        <tree>
-                    <field name="name" string="Invoice recipient name"/>
-                    <field name="country_id" string="Recipient’s country"/>
-                    <field name="number" string="Invoice number"/>
+                    <field name="name" string="Issuer name"/>
+                    <field name="country_id" string="Country"/>
+                    <field name="number" string="Number"/>
                     <field name="invoice_type"/>
                     <field name="description"/>
                     <field name="invoice_date"/>
@@ -129,12 +129,12 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="name" string="Invoice recipient name"/>
-                                <field name="vat" string="Recipient’s VAT-Id number"/>
-                                <field name="vat_type"/>
-                                <field name="country_id" string="Recipient’s country" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name="name" string="Issuer name"/>
+                                <field name="vat" string="Issuer VAT-Id number"/>
+                                <field name="vat_type" string="VAT-Id Type"/>
+                                <field name="country_id" string="Country" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="type" invisible="1"/>
-                                <field name="number" string="Invoice number"/>
+                                <field name="number" string="Number"/>
                                 <field name="invoice_type"/>
                                 <field name="refund_type" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])]}"/>
                                 <field name="rectified_invoices_number" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])]}"/>
