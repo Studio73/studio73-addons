@@ -36,7 +36,7 @@ class AccountInvoiceImport(models.Model):
                 "invoice_number": inv_import.number,
                 "type": inv_import.type,
                 "sii_description": inv_import.description,
-                "sii_registration_key": inv_import.registration_key_id,
+                "sii_registration_key": inv_import.registration_key_id.id,
                 "company_id": inv_import.company_id.id,
                 "currency_id": inv_import.currency_id.id
             })
