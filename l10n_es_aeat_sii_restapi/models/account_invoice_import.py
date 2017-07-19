@@ -19,11 +19,8 @@ class AccountInvoiceImport(models.Model):
             partner = inv_import.get_partner()
             if inv_import.type in ['out_invoice', 'out_refund']:
                 account_id = partner.property_account_receivable.id
-                account_line_id = \
-                    invoice.journal_id.default_debit_account_id.id
             else:
                 account_id = partner.property_account_payable.id
-                account_line_id = invoice.journal_id.default_credit_account_id.id
 
             invoice = account_invoice_obj.create({
                 "partner_id": partner.id,
@@ -43,6 +40,12 @@ class AccountInvoiceImport(models.Model):
                 "company_id": inv_import.company_id.id,
                 "currency_id": inv_import.currency_id.id
             })
+            if inv_import.type in ['out_invoice', 'out_refund']:
+                account_line_id = \
+                    invoice.journal_id.default_debit_account_id.id
+            else:
+                account_line_id = \
+                    invoice.journal_id.default_credit_account_id.id
 
             for line in inv_import.line_ids:
                 # TODO - parsear bien los impuestos
