@@ -17,37 +17,62 @@ class AccountInvoiceImport(models.Model):
 
         for inv_import in self:
             partner = inv_import.get_partner()
+            if inv_import.type in ['out_invoice', 'out_refund']:
+                account_id = partner.property_account_receivable.id
+                account_line_id = \
+                    invoice.journal_id.default_debit_account_id.id
+            else:
+                account_id = partner.property_account_payable.id
+                account_line_id = invoice.journal_id.default_credit_account_id.id
+
             invoice = account_invoice_obj.create({
                 "partner_id": partner.id,
-                "account_id": partner.property_account_receivable.id,
-                "fiscal_position": partner.property_account_position and partner.property_account_position.id or False,
+                "account_id": account_id
+                "fiscal_position": partner.property_account_position and
+                partner.property_account_position.id or False,
                 "date_invoice": inv_import.invoice_date,
+                "sii_send_date": inv_import.record_date,
+                "registration_date": inv_import.period_id.date_stop,
+                "period_id": inv_import.period_id.id,
                 "number": inv_import.number,
+                "supplier_invoice_number": inv_import.supplier_number or '',
                 "invoice_number": inv_import.number,
-                "type": inv_import.type
+                "type": inv_import.type,
+                "sii_description": inv_import.operation_description,
+                "sii_registration_key": inv_import.registration_key_id,
+                "company_id": inv_import.company_id.id,
+                "currency_id": inv_import.currency_id.id
             })
 
-            if invoice.type in ['out_invoice', 'out_refund']:
-                account_id = invoice.journal_id.default_debit_account_id.id
-            else:
-                account_id = invoice.journal_id.default_credit_account_id.id
-
-            # TODO - parsear bien los impuestos
-            if inv_import.type in ['out_invoice', 'out_refund']:
-                tax_code = 'S_IVA21B'
-            else:
-                tax_code = 'P_IVA21_BC'
-
-            tax_id = account_tax_obj.search([('description', '=', tax_code)], limit=1)
-
             for line in inv_import.line_ids:
+                # TODO - parsear bien los impuestos
+                tax_codes = []
+                if inv_import.type in ['out_invoice', 'out_refund']:
+                    if line.type == 'S1':
+                        tax_codes.append('S_IVA21B')
+                    elif line.type == 'S2':
+                        tax_codes.append('S_IVA0_ISP')
+                else:
+                    tax_codes.append('P_IVA21_BC')
+
+                tax_ids = self.env["account.tax"]
+                for tax_code in tax_codes:
+                    tax_id = account_tax_obj.search([
+                        ('description', '=', tax_code),
+                        ('company_id', '=', invoice.company_id.id)
+                    ],
+                        limit=1)
+                    tax_ids += tax_id
+                fpos = invoice.fiscal_position
+                fp_taxes = fpos.map_tax(tax_ids)
+
                 account_invoice_line_obj.create({
                     'invoice_id': invoice.id,
-                    'account_id': account_id,
+                    'account_id': account_line_id,
                     'name': '/',
                     'price_unit': line.base,
                     'quantity': 1,
-                    'invoice_line_tax_id': [(4, [tax_id.id])]
+                    'invoice_line_tax_id': [(6, 0, fp_taxes.ids)]
                 })
 
             inv_import.invoice_id = invoice.id
@@ -81,10 +106,15 @@ class AccountInvoiceImport(models.Model):
         fposition = self.get_fposition()
 
         if not partner:
-            account_rec = account_account_obj.search([('code', 'like', '430000')], limit=1)
-            account_pay = account_account_obj.search([('code', 'like', '410000')], limit=1)
+            account_rec = \
+                account_account_obj.search([('code', 'like', '430000')],
+                                           limit=1)
+            account_pay = \
+                account_account_obj.search([('code', 'like', '410000')],
+                                           limit=1)
             if not (account_rec or account_pay):
-                raise Warning(_('Company is not available to receive invoices. Contact with the IT support team'))
+                raise Warning(_('Company is not available to receive invoices.'
+                                ' Contact with the IT support team'))
 
             partner = res_partner_obj.create({
                 'name': self.name,
@@ -111,17 +141,22 @@ class AccountInvoiceImport(models.Model):
 
         account_fiscal_pos_obj = self.env["account.fiscal.position"]
 
-        europe_group = self.env["res.country.group"].search([("name", "=", "Europe")], limit=1)
+        europe_group = \
+            self.env["res.country.group"].search([("name", "=", "Europe")],
+                                                 limit=1)
         europe = europe_group.mapped('country_ids.code')
 
         country = self.country_id
         # Conseguir la posicion fiscal en base al pais
         if country.code == 'ES':
-            fposition = account_fiscal_pos_obj.search([('name', '=', u'Régimen Nacional')], limit=1)
+            fposition = account_fiscal_pos_obj.search(
+                [('name', '=', u'Régimen Nacional')], limit=1)
         elif country.code in europe:
-            fposition = account_fiscal_pos_obj.search([('name', '=', u'Régimen Intracomunitario')], limit=1)
+            fposition = account_fiscal_pos_obj.search(
+                [('name', '=', u'Régimen Intracomunitario')], limit=1)
         else:
-            fposition = account_fiscal_pos_obj.search([('name', 'like', u'Régimen Extracomunitario')], limit=1)
+            fposition = account_fiscal_pos_obj.search(
+                [('name', 'like', u'Régimen Extracomunitario')], limit=1)
 
         return fposition
 
@@ -137,7 +172,8 @@ class AccountInvoiceImport(models.Model):
             domain.append(("type", "=", "sale"))
         else:
             domain.append(("type", "=", "purchase"))
-        registration_key = self.env["aeat.sii.mapping.registration.keys"].search(domain)
+        registration_key = \
+            self.env["aeat.sii.mapping.registration.keys"].search(domain)
         return registration_key or False
 
     def _get_default_currency(self):
