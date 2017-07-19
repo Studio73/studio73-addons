@@ -27,7 +27,7 @@ class AccountInvoiceImport(models.Model):
 
             invoice = account_invoice_obj.create({
                 "partner_id": partner.id,
-                "account_id": account_id
+                "account_id": account_id,
                 "fiscal_position": partner.property_account_position and
                 partner.property_account_position.id or False,
                 "date_invoice": inv_import.invoice_date,
