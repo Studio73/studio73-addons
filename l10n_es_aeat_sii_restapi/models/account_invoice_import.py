@@ -50,11 +50,19 @@ class AccountInvoiceImport(models.Model):
             for line in inv_import.line_ids:
                 # TODO - parsear bien los impuestos
                 tax_codes = []
+                product_id = False
                 if inv_import.type in ['out_invoice', 'out_refund']:
                     if line.type == 'S1':
                         tax_codes.append('S_IVA21B')
                     elif line.type == 'S2':
                         tax_codes.append('S_IVA0_ISP')
+                    elif line.type == 'E5':
+                        tax_codes.append('S_IVA0_IC')
+                    elif line.type == 'E4':
+                        tax_codes.append('S_IVA0')
+                        product_id = self.env['product.product'].search([
+                            ('name', '=', 'E4')],
+                            limit=1)
                 else:
                     tax_codes.append('P_IVA21_BC')
 
@@ -75,6 +83,7 @@ class AccountInvoiceImport(models.Model):
                     'name': '/',
                     'price_unit': line.base,
                     'quantity': 1,
+                    'product_id': product_id and product_id.id or False,
                     'invoice_line_tax_id': [(6, 0, fp_taxes.ids)]
                 })
 
