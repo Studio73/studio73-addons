@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+
+    <template id="account_invoice_footer">
+        <div class="footer">
+            <t t-if="o.company_id.custom_footer">
+                <span t-raw="o.company_id.rml_footer"/>
+            </t>
+            <div class="text-right">
+                <ul class="list-inline">
+                    <li><span class="page"/></li>
+                    <li>/</li>
+                    <li><span class="topage"/></li>
+                </ul>
+            </div>
+        </div>
+    </template>
+    <template id="account_invoice_footer2">
+        <div class="footer">
+            <div class="text-right">
+                <ul class="list-inline">
+                    <li><span class="page"/></li>
+                    <li>/</li>
+                    <li><span class="topage"/></li>
+                </ul>
+            </div>
+        </div>
+    </template>
+
+    <template id="account.report_invoice_document">
+        <t t-set="o" t-value="o.with_context({'lang':o.partner_id.lang})" />
+        <div class="page">
+            <style>
+                body{
+                    font-size: 10.0pt;
+                    font-family: 'Helvetica','sans-serif';
+                }
+                .footer{
+                    font-size: 10.0pt;
+                    font-family: 'Helvetica','sans-serif';
+                }
+            </style>
+            <div class="row">
+                <div class="col-xs-3">
+                    <t t-if="o.company_id.logo">
+                        <img t-att-src="'data:image/jpeg;base64,%s' % o.company_id.logo"
+                             style="max-width: 150px; max-height: 150px;"/>
+                    </t>
+                </div>
+                <div class="col-xs-9 text-right">
+                    <strong><span t-field="o.company_id"/></strong>
+                    <div>
+                        <t t-esc="o.company_id.street"/> - <t t-esc="o.company_id.zip"/> <t t-esc="o.company_id.city"/>
+                    </div>
+                    <div>
+                        NIF: <t t-esc="o.company_id.vat"/>
+                    </div>
+                    <div>
+                        Teléfono: <t t-esc="o.company_id.phone"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 60px;">
+                <div class="col-xs-5">
+                    <div>
+                        <h4>
+                            <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Invoice</span>
+                            <span t-if="o.type == 'out_invoice' and o.state == 'proforma2'">PRO-FORMA</span>
+                            <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                            <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                            <span t-if="o.type == 'out_refund'">Refund</span>
+                            <span t-if="o.type == 'in_refund'">Vendor Refund</span>
+                            <span t-if="o.type == 'in_invoice'">Vendor Bill</span>
+                            <strong><span t-field="o.number"/></strong>
+                        </h4>
+                    </div>
+                    <div>
+                        Fecha: <span t-field="o.date_invoice"/>
+                    </div>
+                    <!--
+                    <div t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                        Fecha vencimiento: <span t-field="o.date_due"/>
+                    </div>
+                    -->
+                </div>
+                <div name="invoice_address" class="col-xs-7 text-right">
+                    <strong><span t-field="o.partner_id"/></strong>
+                    <address style="margin-bottom: 0px !important"
+                             t-field="o.partner_id"
+                             t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
+                    <span t-if="o.partner_id.vat">TIN: <span t-field="o.partner_id.vat"/></span>
+                </div>
+            </div>
+
+            <!-- Is there a discount on at least one line? -->
+            <t t-set="display_discount" t-value="any([l.discount for l in o.invoice_line_ids])"/>
+            <t t-set="display_qty" t-value="any([l.quantity > 1 for l in o.invoice_line_ids])"/>
+
+            <table class="table table-condensed" style="margin-top: 40px;">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="hidden">Source Document</th>
+                        <th t-if="display_qty" class="text-right">Quantity</th>
+                        <th t-if="display_qty" class="text-right">Unit Price</th>
+                        <th t-if="display_discount" class="text-right" groups="sale.group_discount_per_so_line">Disc.(%)</th>
+                        <th class="text-right">Importe</th>
+                    </tr>
+                </thead>
+                <tbody class="invoice_tbody">
+                    <tr t-foreach="o.invoice_line_ids" t-as="l">
+                        <td><span t-field="l.name"/></td>
+                        <td class="hidden"><span t-field="l.origin"/></td>
+                        <td t-if="display_qty" class="text-right">
+                            <span t-field="l.quantity"/>
+                            <span t-field="l.uom_id"  groups="product.group_uom"/>
+                        </td>
+                        <td t-if="display_qty" class="text-right">
+                            <span t-field="l.price_unit"
+                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                        <td t-if="display_discount" class="text-right" groups="sale.group_discount_per_so_line">
+                            <span t-field="l.discount"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="l.price_subtotal"
+                                t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="row" style="margin-top: 60px;">
+                <div class="col-xs-6">
+                    <p t-if="o.payment_term_id">
+                        <strong>Plazo de pago</strong> <span t-field="o.payment_term_id"/>
+                    </p>
+                    <p t-if="o.fiscal_position_id.note">
+                        <span t-field="o.fiscal_position_id.note"/>
+                    </p>
+                </div>
+                <div class="col-xs-6">
+                    <table class="table table-condensed">
+                        <tr>
+                            <td><strong>Subtotal</strong></td>
+                            <td class="text-right">
+                                <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <t t-foreach="o.tax_line_ids" t-as="line">
+                            <tr>
+                                <td><span t-esc="line.tax_id.description"/></td>
+                                <td class="text-right">
+                                    <span t-field="line.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td class="text-right">
+                                 <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 60px;" t-if="o.comment">
+                <strong>Observaciones</strong>
+                <p t-field="o.comment"/>
+            </div>
+        </div>
+        <div id="wrap_footer">
+            <t t-call="account_invoice_report.account_invoice_footer" />
+        </div>
+    </template>
+
+    <template id="report_invoice_document_no_footer" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@id='wrap_footer']" position="replace">
+            <div id="wrap_footer">
+                <t t-call="account_invoice_report.account_invoice_footer2" />
+            </div>
+        </xpath>
+    </template>
+
+    <template id="report_invoice_document_no_footer_main">
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="account_invoice_report.report_invoice_document_no_footer" t-lang="o.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <!-- Formato papel -->
+    <record id="paperformat_account_invoice" model="report.paperformat">
+        <field name="name">Formato papel factura</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">35</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">90</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="account.account_invoices" model="ir.actions.report.xml">
+        <field name="paperformat_id" ref="account_invoice_report.paperformat_account_invoice"/>
+    </record>
+
+    <report
+            id="account_invoices_no_footer"
+            model="account.invoice"
+            string="Factura sin cuño"
+            report_type="qweb-pdf"
+            name="account_invoice_report.report_invoice_document_no_footer_main"
+            file="account_invoice_report.report_invoice_no_footer"
+            attachment_use="False"
+        />
+
+    <record id="account_invoice_report.account_invoices_no_footer" model="ir.actions.report.xml">
+        <field name="paperformat_id" ref="account_invoice_report.paperformat_account_invoice"/>
+    </record>
+
+</data>
+</odoo>
