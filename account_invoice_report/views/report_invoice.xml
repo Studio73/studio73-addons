@@ -70,16 +70,13 @@
                     <div t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                         Fecha vencimiento: <span t-field="o.date_due"/>
                     </div>
-
                 </div>
+
                 <div name="invoice_address" class="col-xs-7 text-right">
-                    <strong><span t-field="o.partner_id"/></strong>
-                <!--
                     <address style="margin-bottom: 0px !important"
                              t-field="o.partner_id"
                              t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}' />
                     <span t-if="o.partner_id.vat">TIN: <span t-field="o.partner_id.vat"/></span>
-                -->
                 </div>
             </div>
 
@@ -87,7 +84,7 @@
             <t t-set="display_discount" t-value="any([l.discount for l in o.invoice_line_ids])"/>
             <t t-set="display_qty" t-value="any([l.quantity > 1 for l in o.invoice_line_ids])"/>
 
-            <table class="table table-condensed" style="margin-top: 40px;">
+            <table class="table table-condensed" style="margin-top: 80px;">
                 <thead>
                     <tr>
                         <th>Description</th>
@@ -164,7 +161,6 @@
             <t t-call="account_invoice_report.account_invoice_footer" />
         </div>
     </template>
-
 
     <!-- Formato papel -->
     <record id="paperformat_account_invoice" model="report.paperformat">
