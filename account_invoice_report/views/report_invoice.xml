@@ -64,10 +64,10 @@
                             <strong><span t-field="o.number"/></strong>
                         </h4>
                     </div>
-                    <div>
+                    <div name="date_invoice">
                         Fecha: <span t-field="o.date_invoice"/>
                     </div>
-                    <div t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                    <div name="date_due" t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                         Fecha vencimiento: <span t-field="o.date_due"/>
                     </div>
                 </div>
