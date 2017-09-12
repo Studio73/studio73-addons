@@ -157,6 +157,7 @@
                 <strong>Observaciones</strong>
                 <p t-field="o.comment"/>
             </div>
+            <div name="reference" style="display: none;"></div>
         </div>
         <div id="wrap_footer">
             <t t-call="account_invoice_report.account_invoice_footer" />
