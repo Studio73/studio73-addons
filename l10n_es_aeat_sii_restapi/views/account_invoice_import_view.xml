@@ -12,6 +12,7 @@
                     <field name="country_id"/>
                     <field name="number"/>
                     <field name="invoice_type"/>
+                    <field name="delivery_in_progress"/>
                     <field name="description"/>
                     <field name="invoice_date"/>
                     <field name="base"/>
@@ -46,6 +47,7 @@
                                 <field name="refund_type" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])], 'readonly': [('state', '=', 'validated')]}"/>
                                 <field name="rectified_invoices_number" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])], 'readonly': [('state', '=', 'validated')]}"/>
                                 <field name="supplier_number" attrs="{'required': [('type', 'in', ['in_invoice', 'in_refund'])], 'invisible': [('type', 'in', ['out_invoice', 'out_refund'])], 'readonly': [('state', '=', 'validated')]}"/>
+                                <field name="delivery_in_progress" attrs="{'readonly': [('state', '=', 'validated')]}"/>
                             </group>
                             <group>
                                 <field name="description" attrs="{'readonly': [('state', '=', 'validated')]}"/>
@@ -141,6 +143,7 @@
                     <field name="country_id" string="Country"/>
                     <field name="number" string="Number"/>
                     <field name="invoice_type"/>
+                    <field name="delivery_in_progress"/>
                     <field name="description"/>
                     <field name="invoice_date"/>
                     <field name="base"/>
@@ -175,6 +178,7 @@
                                 <field name="refund_type" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])]}"/>
                                 <field name="rectified_invoices_number" attrs="{'invisible': [('type', 'in', ['out_invoice', 'in_invoice'])], 'readonly': [('state', '=', 'validated')]}"/>
                                 <field name="supplier_number" attrs="{'required': [('type', 'in', ['in_invoice', 'in_refund'])], 'invisible': [('type', 'in', ['out_invoice', 'out_refund'])], 'readonly': [('state', '=', 'validated')]}"/>
+                                <field name="delivery_in_progress" attrs="{'readonly': [('state', '=', 'validated')]}"/>
                             </group>
                             <group>
                                 <field name="description" attrs="{'readonly': [('state', '=', 'validated')]}"/>
@@ -270,6 +274,7 @@
                     <field name="invoice_date" string="Invoice date to" filter_domain="[('invoice_date','&lt;=', self)]"/>
                     <field name="country_id"/>
                     <field name="invoice_type"/>
+                    <field name="delivery_in_progress"/>
                     <field name="base"/>
                     <field name="tax_amount"/>
                     <separator/>

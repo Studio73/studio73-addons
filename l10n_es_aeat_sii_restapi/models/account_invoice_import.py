@@ -296,6 +296,7 @@ class AccountInvoiceImport(models.Model):
     sii_return = fields.Text(
         string='SII Return', copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
     )
+    delivery_in_progress = fields.Boolean(string="Delivery in progress")
 
     @api.onchange("invoice_date")
     def onchange_invoice_date(self):
