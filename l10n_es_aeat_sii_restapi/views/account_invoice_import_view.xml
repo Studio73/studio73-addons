@@ -272,6 +272,7 @@
                 <search>
                     <field name="name"/>
                     <field name="number"/>
+                    <field name="supplier_number"/>
                     <field name="invoice_date" string="Invoice date from" filter_domain="[('invoice_date','&gt;=', self)]"/>
                     <field name="invoice_date" string="Invoice date to" filter_domain="[('invoice_date','&lt;=', self)]"/>
                     <field name="country_id"/>
