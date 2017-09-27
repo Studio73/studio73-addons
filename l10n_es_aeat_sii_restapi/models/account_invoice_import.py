@@ -297,6 +297,20 @@ class AccountInvoiceImport(models.Model):
         string='SII Return', copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
     )
     delivery_in_progress = fields.Boolean(string="Delivery in progress")
+    intracommunity_operation = fields.Boolean(
+        string="Intracommunity Operation", compute="_compute_intracommunity_operation"
+    )
+
+    @api.multi
+    def _compute_intracommunity_operation(self):
+        europe_country_group = self.env["res.country.group"].search([("name", "ilike", "europe")], limit=1)
+        if not europe_country_group:
+            return
+        for inv in self.filtered(lambda i: i.country_id):
+            flag = False
+            if inv.country_id.id in europe_country_group.country_ids.ids:
+                flag = True
+            inv.intracommunity_operation = flag
 
     @api.onchange("invoice_date")
     def onchange_invoice_date(self):
