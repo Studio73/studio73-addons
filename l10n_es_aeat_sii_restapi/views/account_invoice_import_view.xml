@@ -273,10 +273,11 @@
                     <field name="base"/>
                     <field name="tax_amount"/>
                     <separator/>
-                    <group  expand='0' string='Group by'>
+                    <group expand='0' string='Group by'>
                         <filter string="Name" context="{'group_by': 'name'}"/>
                         <filter string="Country" context="{'group_by': 'country_id'}"/>
                         <filter string="Type" context="{'group_by': 'invoice_type'}"/>
+                        <filter string="SII state" context="{'group_by': 'sii_state'}"/>
                     </group>
 		        </search>
 		    </field>
