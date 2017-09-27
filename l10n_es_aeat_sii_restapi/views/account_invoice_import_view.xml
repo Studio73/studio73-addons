@@ -266,6 +266,18 @@
                 <search>
                     <field name="name"/>
                     <field name="number"/>
+                    <field name="invoice_date" string="Invoice date from" filter_domain="[('invoice_date','&gt;=', self)]"/>
+                    <field name="invoice_date" string="Invoice date to" filter_domain="[('invoice_date','&lt;=', self)]"/>
+                    <field name="country_id"/>
+                    <field name="invoice_type"/>
+                    <field name="base"/>
+                    <field name="tax_amount"/>
+                    <separator/>
+                    <group  expand='0' string='Group by'>
+                        <filter string="Name" context="{'group_by': 'name'}"/>
+                        <filter string="Country" context="{'group_by': 'country_id'}"/>
+                        <filter string="Type" context="{'group_by': 'invoice_type'}"/>
+                    </group>
 		        </search>
 		    </field>
 		</record>
