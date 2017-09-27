@@ -10,6 +10,21 @@ class AccountInvoiceImport(models.Model):
     _name = 'account.invoice.import'
 
     @api.multi
+    def write(self, vals):
+        """
+        """
+        for inv_import in self:
+            if inv_import.sii_state == 'not_sent' or not inv_import.sii_state:
+                continue
+            if 'invoice_date' in vals:
+                raise Warning(
+                    _("You cannot change the invoice date of an invoice "
+                      "already registered at the SII. You must cancel the "
+                      "invoice and create a new one with the correct date")
+                )
+        return super(AccountInvoiceImport, self).write(vals)
+
+    @api.multi
     def cancel_sii(self):
         for inv_import in self.filtered(lambda i: i.invoice_id):
             invoice = inv_import.invoice_id
