@@ -7,7 +7,7 @@
 		    <field name="model">account.invoice.import</field>
             <field name="priority">1</field>
 		    <field name="arch" type="xml">
-		        <tree>
+		        <tree colors="red:sii_state == 'sent_w_errors';gray:sii_state == 'sent';blue:state == 'draft'">
                     <field name="name"/>
                     <field name="country_id"/>
                     <field name="number"/>
@@ -17,6 +17,7 @@
                     <field name="base"/>
                     <field name="tax_amount"/>
                     <field name="state"/>
+                    <field name="sii_state"/>
 		        </tree>
 		    </field>
 		</record>
@@ -138,7 +139,7 @@
 		    <field name="model">account.invoice.import</field>
             <field name="priority">2</field>
 		    <field name="arch" type="xml">
-		        <tree>
+		        <tree colors="red:sii_state == 'sent_w_errors';gray:sii_state == 'sent';blue:state == 'draft'">
                     <field name="name" string="Issuer name"/>
                     <field name="country_id" string="Country"/>
                     <field name="number" string="Number"/>
@@ -148,6 +149,7 @@
                     <field name="base"/>
                     <field name="tax_amount"/>
                     <field name="state"/>
+                    <field name="sii_state"/>
 		        </tree>
 		    </field>
 		</record>
