@@ -10,6 +10,13 @@ class AccountInvoiceImport(models.Model):
     _name = 'account.invoice.import'
 
     @api.multi
+    def cancel_sii(self):
+        for inv_import in self.filtered(lambda i: i.invoice_id):
+            invoice = inv_import.invoice_id
+            invoice.cancel_sii()
+        return True
+
+    @api.multi
     def to_invoice(self):
         account_invoice_obj = self.env["account.invoice"]
         account_invoice_line_obj = self.env['account.invoice.line']
