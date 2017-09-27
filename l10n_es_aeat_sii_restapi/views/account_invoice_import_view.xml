@@ -92,7 +92,37 @@
                                 </group>
                             </page>
                             <page string="SII">
-
+                                <group string="SII Result">
+                                    <notebook colspan="4">
+                                        <page string="General">
+                                            <group>
+                                                <group>
+                                                    <field name="sii_state"/>
+                                                    <field name="sii_csv"/>
+                                                </group>
+                                                <group/>
+                                            </group>
+                                        </page>
+                                        <page string="Technical">
+                                            <group>
+                                                <label for="sii_header_sent"/>
+                                            </group>
+                                            <field name="sii_header_sent"/>
+                                            <group>
+                                                <label for="sii_content_sent"/>
+                                            </group>
+                                            <field name="sii_content_sent"/>
+                                            <group>
+                                                <label for="sii_return"/>
+                                            </group>
+                                            <field name="sii_return"/>
+                                        </page>
+                                    </notebook>
+                                </group>
+                                <group string="Connector Jobs">
+                                    <field name="invoice_jobs_ids" nolabel="1" readonly="1"
+                                           context="{'tree_view_ref': 'l10n_es_aeat_sii.view_queue_job_sii'}"/>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>
@@ -191,7 +221,37 @@
                                 </group>
                             </page>
                             <page string="SII">
-
+                                <group string="SII Result">
+                                    <notebook colspan="4">
+                                        <page string="General">
+                                            <group>
+                                                <group>
+                                                    <field name="sii_state"/>
+                                                    <field name="sii_csv"/>
+                                                </group>
+                                                <group/>
+                                            </group>
+                                        </page>
+                                        <page string="Technical">
+                                            <group>
+                                                <label for="sii_header_sent"/>
+                                            </group>
+                                            <field name="sii_header_sent"/>
+                                            <group>
+                                                <label for="sii_content_sent"/>
+                                            </group>
+                                            <field name="sii_content_sent"/>
+                                            <group>
+                                                <label for="sii_return"/>
+                                            </group>
+                                            <field name="sii_return"/>
+                                        </page>
+                                    </notebook>
+                                </group>
+                                <group string="Connector Jobs">
+                                    <field name="invoice_jobs_ids" nolabel="1" readonly="1"
+                                           context="{'tree_view_ref': 'l10n_es_aeat_sii.view_queue_job_sii'}"/>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>

@@ -277,6 +277,25 @@ class AccountInvoiceImport(models.Model):
                                                         ("validated", "Validated")], default="draft")
     invoice_id = fields.Many2one("account.invoice", string="Invoice")
     company_id = fields.Many2one("res.company", string="Company", required=True, default=_get_default_company)
+    sii_state = fields.Selection(
+        string="SII send state", readonly=True, copy=False, help="Indicates the state of this invoice in relation with "
+                                                                 "the presentation at the SII",
+        related="invoice_id.sii_state", store=True
+    )
+    sii_csv = fields.Char(string='SII CSV', copy=False, readonly=True, related="invoice_id.sii_csv", store=True)
+    invoice_jobs_ids = fields.Many2many(
+        comodel_name='queue.job', column1='invoice_id', column2='job_id',
+        string="Connector Jobs", copy=False, related="invoice_id.invoice_jobs_ids", store=True
+    )
+    sii_header_sent = fields.Text(
+        string="SII last header sent", copy=False, readonly=True, related="invoice_id.sii_header_sent", store=True
+    )
+    sii_content_sent = fields.Text(
+        string="SII last content sent", copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
+    )
+    sii_return = fields.Text(
+        string='SII Return', copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
+    )
 
     @api.onchange("invoice_date")
     def onchange_invoice_date(self):
