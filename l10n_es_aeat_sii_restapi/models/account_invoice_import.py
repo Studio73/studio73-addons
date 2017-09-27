@@ -22,24 +22,32 @@ class AccountInvoiceImport(models.Model):
             else:
                 account_id = partner.property_account_payable.id
 
-            invoice = account_invoice_obj.create({
+            invoice_vals = {
                 "partner_id": partner.id,
                 "account_id": account_id,
-                "fiscal_position": partner.property_account_position and
-                partner.property_account_position.id or False,
-                "date_invoice": inv_import.invoice_date,
-                "sii_send_date": inv_import.record_date,
+                "fiscal_position": partner.property_account_position and partner.property_account_position.id or False,
                 "registration_date": inv_import.period_id.date_stop,
                 "period_id": inv_import.period_id.id,
                 "number": inv_import.number,
                 "supplier_invoice_number": inv_import.supplier_number or '',
                 "invoice_number": inv_import.number,
                 "type": inv_import.type,
+                "company_id": inv_import.company_id.id,
+                "currency_id": inv_import.currency_id.id,
+                "sii_send_date": inv_import.record_date,
                 "sii_description": inv_import.description,
                 "sii_registration_key": inv_import.registration_key_id.id,
-                "company_id": inv_import.company_id.id,
-                "currency_id": inv_import.currency_id.id
-            })
+            }
+
+            invoice = inv_import.invoice_id
+            if not invoice:
+                invoice_vals.update({
+                    "date_invoice": inv_import.invoice_date,
+                })
+                invoice = account_invoice_obj.create(invoice_vals)
+            else:
+                invoice.write(invoice_vals)
+
             if inv_import.type in ['out_invoice', 'out_refund']:
                 account_line_id = \
                     invoice.journal_id.default_debit_account_id.id
@@ -87,7 +95,9 @@ class AccountInvoiceImport(models.Model):
                     'invoice_line_tax_id': [(6, 0, fp_taxes.ids)]
                 })
 
-            inv_import.invoice_id = invoice.id
+            if not inv_import.invoice_id:
+                inv_import.invoice_id = invoice.id
+
             inv_import.state = "validated"
             invoice.action_date_assign()
             invoice.action_move_create()
@@ -98,12 +108,23 @@ class AccountInvoiceImport(models.Model):
 
     @api.multi
     def to_draft(self):
+        """
+        - Si se vuelve a borrador una factura ya enviada al SII, en vez de intentar borrar la factura se debe
+            quedar en borrador a la espera de que se cambien datos y se valide de nuevo.
+            - En caso de que no haya sido enviada, borramos la factura
+            - Si ha sido enviada, la dejamos en borrador y borramos unicamente las lineas
+        """
         for inv_import in self:
             invoice = inv_import.invoice_id
             if invoice:
-                invoice.action_cancel()
-                invoice.internal_number = False
-                invoice.unlink()
+                if not invoice.sii_state or invoice.sii_state not in ["sent", "sent_w_errors", "sent_modified"]:
+                    invoice.action_cancel()
+                    invoice.internal_number = False
+                    invoice.unlink()
+                else:
+                    invoice.action_cancel_draft()
+                    invoice.internal_number = False
+                    invoice.invoice_line.unlink()
             inv_import.state = "draft"
         return True
 
