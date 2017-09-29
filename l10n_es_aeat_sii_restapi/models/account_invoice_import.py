@@ -376,6 +376,14 @@ class AccountInvoiceImport(models.Model):
             self.base = sum(l.base for l in imp.line_ids)
             self.tax_amount = sum(l.tax_amount for l in imp.line_ids)
 
+    @api.multi
+    def unlink(self):
+        if self.state == 'validated':
+            raise Warning(_("You cannot delete a validated invoice."))
+        elif self.sii_state != 'not_sent':
+            raise Warning(_("You cannot delete a invoice sent to SII."))
+        return super(AccountInvoiceImport, self).unlink()
+
 
 class AccountInvoiceImportLine(models.Model):
     _name = "account.invoice.import.line"
