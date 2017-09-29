@@ -281,6 +281,7 @@
                     <field name="invoice_date" string="Invoice date to" filter_domain="[('invoice_date','&lt;=', self)]"/>
                     <field name="country_id"/>
                     <field name="invoice_type"/>
+                    <field name="period_id"/>
                     <field name="delivery_in_progress"/>
                     <field name="base"/>
                     <field name="tax_amount"/>
