@@ -343,6 +343,8 @@ class AccountInvoiceImport(models.Model):
     intracommunity_operation = fields.Boolean(
         string="Intracommunity Operation", compute="_compute_intracommunity_operation"
     )
+    down_payment = fields.Boolean(string="Down payment")
+    dispatch_goods = fields.Boolean(string="Dispatch of goods")
 
     @api.multi
     def _compute_intracommunity_operation(self):
@@ -380,10 +382,29 @@ class AccountInvoiceImport(models.Model):
     def unlink(self):
         if self.state == 'validated':
             raise Warning(_("You cannot delete a validated invoice."))
-        elif self.sii_state != 'not_sent':
+        elif self.sii_state and self.sii_state != 'not_sent':
             raise Warning(_("You cannot delete a invoice sent to SII."))
         return super(AccountInvoiceImport, self).unlink()
 
+    @api.onchange('dispatch_goods')
+    def onchage_dispatch_goods(self):
+        res = {}
+        if self.dispatch_goods:
+            res = {'warning': {
+                'title': _('Warning'),
+                'message': _('Remember to fill the transaction date field with the transport start date.')}}
+        if res:
+            return res
+
+    @api.onchange('down_payment')
+    def onchage_down_payment(self):
+        res = {}
+        if self.down_payment:
+            res = {'warning': {
+                'title': _('Warning'),
+                'message': _('Remember to upload the payment document.')}}
+        if res:
+            return res
 
 class AccountInvoiceImportLine(models.Model):
     _name = "account.invoice.import.line"
