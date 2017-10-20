@@ -153,6 +153,8 @@ class AccountInvoiceImport(models.Model):
     @api.multi
     def get_partner(self):
         self.ensure_one()
+        if self.vat == self.company_id.vat:
+            raise Warning(_('ERROR: The VAT-Id number can\'t be the same of the company.'))
 
         res_partner_obj = self.env["res.partner"]
         account_account_obj = self.env["account.account"]
