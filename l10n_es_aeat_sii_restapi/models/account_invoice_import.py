@@ -83,7 +83,17 @@ class AccountInvoiceImport(models.Model):
                 product_id = False
                 if inv_import.type in ['out_invoice', 'out_refund']:
                     if line.type == 'S1':
-                        tax_codes.append('S_IVA21B')
+                        if line.tax_type == '21':
+                            tax_codes.append('S_IVA21B')
+                        elif line.tax_type == '10':
+                            tax_codes.append('S_IVA10B')
+                        elif line.tax_type == '4':
+                            tax_codes.append('S_IVA4B')
+                        elif line.tax_type == '0':
+                            tax_codes.append('S_IVA0')
+                        else:
+                            raise Warning(_('The tax type of the lines is not supported.'
+                                            ' Contact with the IT support team'))
                     elif line.type == 'S2':
                         tax_codes.append('S_IVA0_ISP')
                     elif line.type == 'E5':
@@ -94,7 +104,27 @@ class AccountInvoiceImport(models.Model):
                             ('name', '=', 'E4')],
                             limit=1)
                 else:
-                    tax_codes.append('P_IVA21_BC')
+                    if line.type == 'S1':
+                        if line.tax_type == '21':
+                            tax_codes.append('P_IVA21_BC')
+                        elif line.tax_type == '10':
+                            tax_codes.append('P_IVA10_BC')
+                        elif line.tax_type == '4':
+                            tax_codes.append('P_IVA4_BC')
+                        elif line.tax_type == '0':
+                            tax_codes.append('P_IVA0_BC')
+                        else:
+                            raise Warning(_('The tax type of the lines is not supported.'
+                                            ' Contact with the IT support team'))
+                    elif line.type == 'S2':
+                        tax_codes.append('S_IVA0_ISP')
+                    elif line.type == 'E5':
+                        tax_codes.append('S_IVA0_IC')
+                    elif line.type == 'E4':
+                        tax_codes.append('S_IVA0')
+                        product_id = self.env['product.product'].search([
+                            ('name', '=', 'E4')],
+                            limit=1)
 
                 tax_ids = self.env["account.tax"]
                 for tax_code in tax_codes:
