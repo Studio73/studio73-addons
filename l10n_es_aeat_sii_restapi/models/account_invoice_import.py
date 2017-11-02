@@ -189,7 +189,12 @@ class AccountInvoiceImport(models.Model):
         res_partner_obj = self.env["res.partner"]
         account_account_obj = self.env["account.account"]
 
-        partner = res_partner_obj.search([("vat", "=", self.vat)], limit=1)
+        partner = self.partner_id
+        if not partner:
+            if self.vat:
+                partner = res_partner_obj.search([('vat', '=', self.vat)], limit=1)
+                if not partner:
+                    partner = res_partner_obj.search([('vat', 'ilike', self.vat)], limit=1)
         fposition = self.get_fposition()
 
         if not partner:
@@ -215,11 +220,14 @@ class AccountInvoiceImport(models.Model):
                 'property_account_position': fposition.id,
                 'type': 'default',
             })
+            self.partner_id = partner
         else:
+            if not self.partner_id and partner:
+                self.partner_id = partner
             if partner.country_id != self.country_id:
                 partner.country_id = self.country_id
-            if partner.name != partner['name']:
-                partner.name = partner['name']
+            if partner.name != self.name:
+                partner.name = self.name
             if partner.property_account_position != fposition:
                 partner.property_account_position = fposition.id
 
@@ -276,6 +284,7 @@ class AccountInvoiceImport(models.Model):
 
     operation = fields.Selection(string="Operation", selection=[("A0", "A0 - Register new invoice"),
                                                                 ("A1", "A1 - Modify existing invoice")], default="A0")
+    partner_id = fields.Many2one(comodel_name="res.partner", string="Invoice recipient name")
     name = fields.Char(string="Invoice recipient name", required=True)
     vat = fields.Char(string="Recipient’s VAT-Id number", required=True)
     vat_type = fields.Selection(string="Recipient’s VAT-Id Type", selection=[('02', u'02 - NIF- VAT'),
@@ -437,6 +446,18 @@ class AccountInvoiceImport(models.Model):
                 'message': _('Remember to upload the payment document.')}}
         if res:
             return res
+
+    @api.onchange("vat")
+    def onchange_vat(self):
+        partner_id = False
+        if self.vat:
+            partner_id = self.env['res.partner'].search([('vat','=',self.vat)], limit=1)
+            if not partner_id:
+                partner_id = self.env['res.partner'].search([('vat', 'ilike', self.vat)], limit=1)
+        self.vat = partner_id and partner_id.vat or self.vat
+        self.partner_id = partner_id
+        self.name = partner_id and partner_id.name or False
+        self.country_id = partner_id and partner_id.country_id or False
 
 class AccountInvoiceImportLine(models.Model):
     _name = "account.invoice.import.line"
