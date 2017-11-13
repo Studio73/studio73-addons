@@ -176,7 +176,7 @@
                                 <field name="invoice_id" invisible="1"/>
                                 <field name="vat" string="Issuer VAT-Id number" attrs="{'readonly': [('state', '=', 'validated')]}"/>
                                 <field name="vat_type" string="VAT-Id Type" attrs="{'readonly': [('state', '=', 'validated')]}"/>
-                                <field name="name" attrs="{'invisible': [('vat', '=', False)], 'readonly': [('state', '=', 'validated')]}"/>
+                                <field name="name" string = "Issuer name" attrs="{'invisible': [('vat', '=', False)], 'readonly': [('state', '=', 'validated')]}"/>
                                 <field name="partner_id" options="{'no_open': True}" invisible="1"/>
                                 <field name="country_id" attrs="{'invisible': [('vat', '=', False)], 'readonly': [('state', '=', 'validated')]}" string="Country" options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="type" invisible="1"/>
