@@ -11,4 +11,5 @@
     'website': 'http://www.studio73.es',
     'depends': ['account', 'debrand_mail_layout'],
     'installable': True,
+    'auto_install': True,
 }
