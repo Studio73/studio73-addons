@@ -1,0 +1,388 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_es_aeat_sii_investment_assets
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-11-16 09:15+0000\n"
+"PO-Revision-Date: 2017-11-16 10:42+0100\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: \n"
+"Language: es\n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,vat_type:0
+msgid "02 - NIF-VAT"
+msgstr "02 - NIF-IVA"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,vat_type:0
+msgid "03 - Passport"
+msgstr "03 - PASAPORTE"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,vat_type:0
+msgid "04 - Official id document issued by the country or territory of residence"
+msgstr "04 - DOCUMENTO OFICIAL DE IDENTIFICACIÓN EXPEDIDO POR EL PAIS O TERRITORIO DE RESIDENCIA"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,vat_type:0
+msgid "05 - Certificate of residence"
+msgstr "05 - CERTIFICADO DE RESIDENCIA"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,vat_type:0
+msgid "06 - Other documents"
+msgstr "06 - OTRO DOCUMENTO PROBATORIO"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,vat_type:0
+msgid "07 - NO CENSUS"
+msgstr "07 - NO CENSADO"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,period:0
+msgid "0A"
+msgstr "0A"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,sii_state:0
+msgid "Accepted with errors"
+msgstr "Aceptado con errores"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,asset_identifier:0
+msgid "Asset identifier"
+msgstr "Asset identifier"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,state:0
+msgid "Canceled"
+msgstr "Cancelado"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,sii_state:0
+msgid "Cancelled"
+msgstr "Anulada"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,sii_state:0
+msgid "Cancelled in SII but last modifications not sent"
+msgstr "Anulada en SII con modificaciones pendientes de comunicar"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,company_id:0
+msgid "Company"
+msgstr "Compañía"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+#: field:account.investment.assets,asset_jobs_ids:0
+msgid "Connector Jobs"
+msgstr "Trabajos del conector"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_search
+#: field:account.investment.assets,country_id:0
+msgid "Country"
+msgstr "País"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,create_uid:0
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,create_date:0
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,definitive_annual_proportion:0
+msgid "Definitive annual proportion"
+msgstr "Prorrata anual definitiva"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,definitive_annual_regularization:0
+msgid "Definitive annual regularization"
+msgstr "Regularización anual definitiva"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,delivery_identification:0
+msgid "Delivery identification"
+msgstr "Identificación entrega"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,display_name:0
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,state:0
+msgid "Draft"
+msgstr "Borrador"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_enabled:0
+msgid "Enable SII"
+msgstr "Activar SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+msgid "General"
+msgstr "General"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_search
+msgid "Group by"
+msgstr "Agrupar por"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,identification_type:0
+msgid "Identification type"
+msgstr "Tipo de identificación"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,identifier:0
+msgid "Identifier"
+msgstr "Identificador"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: help:account.investment.assets,sii_send_failed:0
+msgid "Indicates that the last attempt to communicate this asset to the SII has failed. See SII return for details"
+msgstr "Indica que el último intento de comunicar el bien de inversión al SII ha fallado. Ver el retorno SII para más detalles"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: help:account.investment.assets,sii_state:0
+msgid "Indicates the state of this asset in relation with the presentation at the SII"
+msgstr "Indica el estado de este bien de inversión en relación al registro en el SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: model:ir.actions.act_window,name:l10n_es_aeat_sii_investment_assets.action_investment_assets
+#: model:ir.ui.menu,name:l10n_es_aeat_sii_investment_assets.menu_investment_assets
+msgid "Investment assets"
+msgstr "Bienes de inversión"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,invoice_date:0
+msgid "Invoice date"
+msgstr "Fecha de factura"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_search
+msgid "Invoice date from"
+msgstr "Fecha de factura desde"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_search
+msgid "Invoice date to"
+msgstr "Fecha de factura hasta"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,vat:0
+msgid "Issuer VAT"
+msgstr "NIF proveedor"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,name:0
+msgid "Issuer name"
+msgstr "Nombre proveedor"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,__last_update:0
+msgid "Last Modified on"
+msgstr "Últ. modificación en"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,write_uid:0
+msgid "Last Updated by"
+msgstr "Últ. actualización por"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,write_date:0
+msgid "Last Updated on"
+msgstr "Últ. actualización en"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: model:ir.ui.menu,name:l10n_es_aeat_sii_investment_assets.menu_ledger_investment_assets
+msgid "Ledger of investment assets"
+msgstr "Facturas de bienes de inversión"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,identification_type:0
+msgid "NIF"
+msgstr "NIF"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_search
+msgid "Name"
+msgstr "Nombre"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: code:addons/l10n_es_aeat_sii_investment_assets/models/account_investment_assets.py:351
+#, python-format
+msgid "No VAT configured for the company '{}'"
+msgstr "La compañía '{}' no tiene ningún NIF establecido"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,sii_state:0
+msgid "Not sent"
+msgstr "No registrada"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,identification_type:0
+msgid "Other"
+msgstr "Otro"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,period:0
+msgid "Period"
+msgstr "Período"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,vat_type:0
+msgid "Recipient’s VAT-Id Type"
+msgstr "Tipo de documento"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,sii_state:0
+msgid "Registered in SII but last modifications not sent"
+msgstr "Registro correcto en SII con modificaciones pendientes de comunicar"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,regularization_deduction_done:0
+msgid "Regularitzation deduction done"
+msgstr "Regularización deducción efectuada"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_csv:0
+msgid "SII CSV"
+msgstr "SII CSV"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+msgid "SII Result"
+msgstr "Resultado SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_return:0
+msgid "SII Return"
+msgstr "Retorno SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_send_error:0
+msgid "SII Send Error"
+msgstr "Error de envío SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_content_sent:0
+msgid "SII last content sent"
+msgstr "Último contenido enviado al SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_header_sent:0
+msgid "SII last header sent"
+msgstr "Última cabecera enviada al SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_send_failed:0
+msgid "SII send failed"
+msgstr "Envío SII fallido"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,sii_state:0
+msgid "SII send state"
+msgstr "Estado de envío SII"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,sii_state:0
+msgid "Sent"
+msgstr "Enviada"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_search
+#: field:account.investment.assets,state:0
+msgid "State"
+msgstr "Estado"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,invoice_number:0
+msgid "Supplier’s invoice number"
+msgstr "Número de factura de proveedor"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+msgid "Technical"
+msgstr "Técnico"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: code:addons/l10n_es_aeat_sii_investment_assets/models/account_investment_assets.py:273
+#, python-format
+msgid "This company doesn't have SII enabled."
+msgstr "Esta empresa no tiene el SII habilitado."
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+msgid "To draft"
+msgstr "A borrador"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,utilization_start_date:0
+msgid "Utilization start date"
+msgstr "Fecha inicio utilización"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: view:account.investment.assets:l10n_es_aeat_sii_investment_assets.account_investment_assets_form
+msgid "Validate"
+msgstr "Validar"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: selection:account.investment.assets,state:0
+msgid "Validated"
+msgstr "Validada"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: field:account.investment.assets,fiscalyear_id:0
+msgid "Year"
+msgstr "Año"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: code:addons/l10n_es_aeat_sii_investment_assets/models/account_investment_assets.py:173
+#, python-format
+msgid "You can not cancel this asset because there is a job running!"
+msgstr "No puede cancelar un bien de inversión porque hay un trabajo ejecutándose!"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: code:addons/l10n_es_aeat_sii_investment_assets/models/account_investment_assets.py:150
+#, python-format
+msgid "You can not delete this asset because there is a job running!"
+msgstr "No puede borrar un bien de inversión porque hay un trabajo ejecutándose!"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: code:addons/l10n_es_aeat_sii_investment_assets/models/account_investment_assets.py:210
+#, python-format
+msgid "You can not set to draft this asset because there is a job running!"
+msgstr "No puede poner en borrador un bien de inversión porque hay un trabajo ejecutándose!"
+
+#. module: l10n_es_aeat_sii_investment_assets
+#: code:addons/l10n_es_aeat_sii_investment_assets/models/account_investment_assets.py:154
+#, python-format
+msgid "You cannot delete a asset sent to SII."
+msgstr "No puede borrar un bien de inversión que ya ha sido enviado al SII."
