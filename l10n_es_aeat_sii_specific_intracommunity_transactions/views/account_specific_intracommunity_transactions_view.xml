@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record id="account_specific_intracommunity_transactions_tree" model="ir.ui.view">
+            <field name="name">account.specific.intracommunity.transactions.tree</field>
+            <field name="model">account.specific.intracommunity.transactions</field>
+            <field name="arch" type="xml">
+                <tree colors="red:sii_state == 'sent_w_errors';gray:sii_state in ('sent','cancelled');blue:state == 'draft'">
+                    <field name="name"/>
+                    <field name="invoice_number"/>
+                    <field name="invoice_date"/>
+                    <field name="state"/>
+                    <field name="sii_state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="account_specific_intracommunity_transactions_form" model="ir.ui.view">
+            <field name="name">account.specific.intracommunity.transactions.form</field>
+            <field name="model">account.specific.intracommunity.transactions</field>
+            <field name="arch" type="xml">
+                <form string="">
+                    <header>
+                        <button name="validate_transactions" states="draft" type="object" string="Validate" class="oe_highlight"/>
+                        <button name="cancel_transactions" type="object" string="Cancel" attrs="{'invisible': ['|', ('state', 'in', ('validated', 'cancel')),('sii_state', '=', 'not_sent')]}"/>
+                        <button name="to_draft_transactions" states="cancel,validated" type="object" string="To draft" class="oe_highlight"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,validated"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group string="Period data" col="4" colspan="2">
+                                <field name="fiscalyear_id"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"
+                                       options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name="period_id"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"
+                                       options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                            </group>
+                            <group string="Issuer invoice data">
+                                <field name="name"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="issuer_identification_type"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="issuer_vat"
+                                       attrs="{'invisible': [('issuer_identification_type', '!=', '1')],
+                                               'required': [('issuer_identification_type', '=', '1')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="issuer_country_id"
+                                       attrs="{'invisible': [('issuer_identification_type', '!=', '0')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"
+                                       options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name="issuer_identifier"
+                                       attrs="{'invisible': [('issuer_identification_type', '!=', '0')],
+                                               'required': [('issuer_identification_type', '=', '0')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="invoice_number"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="invoice_date"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            </group>
+                            <group string="Counterparty data">
+                                <field name="counterparty_name"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="counterparty_representative_vat"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="counterparty_identification_type"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="counterparty_vat"
+                                       attrs="{'invisible': [('counterparty_identification_type', '!=', '1')],
+                                               'required': [('counterparty_identification_type', '=', '1')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="counterparty_country_id"
+                                       attrs="{'invisible': [('counterparty_identification_type', '!=', '0')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"
+                                       options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                <field name="counterparty_identifier"
+                                       attrs="{'invisible': [('counterparty_identification_type', '!=', '0')],
+                                               'required': [('counterparty_identification_type', '=', '0')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            </group>
+                            <group string="Intracomunity transactions data" colspan="2">
+                                <field name="operation_type"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <group col="6" colspan="2">
+                                    <field name="declared_key"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                    <field name="country_id"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                    <field name="operation_term"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                </group>
+                                <field name="goods_description"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="operator_address"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="other_inv_doc"
+                                       attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                                <field name="company_id"
+                                       readonly="True"
+                                       groups="base.group_multi_company"
+                                       widget="selection"/>
+                            </group>
+                            <group string="SII Result" colspan="2">
+                                <notebook>
+                                    <page name="page_sii_result_general" string="General">
+                                        <group>
+                                            <field name="sii_state" />
+                                            <field name="sii_send_failed" attrs="{'invisible': [('sii_send_failed', '=', False)]}" />
+                                            <field name="sii_send_error" attrs="{'invisible': [('sii_send_failed', '=', False)]}" />
+                                            <field name="sii_csv"/>
+                                        </group>
+                                    </page>
+                                    <page name="page_sii_result_technical" string="Technical">
+                                        <group><label for="sii_header_sent"/></group>
+                                        <field name="sii_header_sent" />
+                                        <group><label for="sii_content_sent"/></group>
+                                        <field name="sii_content_sent"/>
+                                        <group><label for="sii_return"/></group>
+                                        <field name="sii_return" />
+                                    </page>
+                                </notebook>
+                            </group>
+
+                            <group string="Connector Jobs" colspan="2">
+                                <field name="transaction_jobs_ids"
+                                       nolabel="1"
+                                       readonly="1"
+                                       context="{'tree_view_ref': 'l10n_es_aeat_sii.view_queue_job_sii'}"
+                                />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="account_specific_intracommunity_transactions_search" model="ir.ui.view">
+            <field name="name">account.specific.intracommunity.transactions.search</field>
+            <field name="model">account.specific.intracommunity.transactions</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="invoice_number"/>
+                    <field name="invoice_date" string="Invoice date from" filter_domain="[('invoice_date','&gt;=', self)]"/>
+                    <field name="invoice_date" string="Invoice date to" filter_domain="[('invoice_date','&lt;=', self)]"/>
+                    <separator/>
+                    <group expand='0' string='Group by'>
+                        <filter string="Name" context="{'group_by': 'name'}"/>
+                        <filter string="State" context="{'group_by': 'state'}"/>
+                        <filter string="Country" context="{'group_by': 'country_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_specific_intracommunity_transactions" model="ir.actions.act_window">
+            <field name="name">Specific intracommunity transactions</field>
+            <field name="res_model">account.specific.intracommunity.transactions</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem
+                name="Ledger of specific intracommunity transactions"
+                id="menu_ledger_specific_intracommunity_transactions"
+                parent="account.menu_finance"
+                sequence="1"/>
+
+        <menuitem
+                action="action_specific_intracommunity_transactions"
+                id="menu_specific_intracommunity_transactions"
+                parent="menu_ledger_specific_intracommunity_transactions"/>
+
+    </data>
+</openerp>
