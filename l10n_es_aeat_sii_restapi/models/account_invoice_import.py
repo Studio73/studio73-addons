@@ -207,10 +207,16 @@ class AccountInvoiceImport(models.Model):
             if not (account_rec or account_pay):
                 raise Warning(_('Company is not available to receive invoices.'
                                 ' Contact with the IT support team'))
-            if self.country_id.code in self.vat:
+            if self.country_id.code == "GR":
+                country_code = "EL"
+            else:
+                country_code = self.country_id.code
+
+            if country_code in self.vat:
                 vat = self.vat
             else:
-                vat = "%s%s" % (self.country_id.code, self.vat)
+                vat = "%s%s" % (country_code, self.vat)
+
             partner = res_partner_obj.create({
                 'name': self.name,
                 'vat': vat,
