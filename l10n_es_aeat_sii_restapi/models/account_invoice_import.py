@@ -378,7 +378,7 @@ class AccountInvoiceImport(models.Model):
         string="SII last content sent", copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
     )
     sii_return = fields.Text(
-        string='SII Return', copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
+        string='SII Return', copy=False, readonly=True, related="invoice_id.sii_return", store=True
     )
     delivery_in_progress = fields.Boolean(string="Delivery in progress")
     intracommunity_operation = fields.Boolean(
