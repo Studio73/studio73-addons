@@ -290,6 +290,8 @@
                     <field name="base"/>
                     <field name="tax_amount"/>
                     <separator/>
+                    <filter string="Issued first semester 2017" domain="[('registration_key_id.code','=','16')]" help="Issued invoices of first semester 2017"/>
+                    <filter string="Received first semester 2017" domain="[('registration_key_id.code','=','14')]" help="Received invoices of first semester 2017"/>
                     <group expand='0' string='Group by'>
                         <filter string="Name" context="{'group_by': 'name'}"/>
                         <filter string="State" context="{'group_by': 'state'}"/>

@@ -8,6 +8,13 @@ from openerp.exceptions import Warning
 
 class AccountInvoiceImport(models.Model):
     _name = 'account.invoice.import'
+    _order = 'number DESC'
+
+    @api.model
+    def create(self, vals):
+        if vals.get('number', False):
+            vals['number'] = vals['number'].rjust(4, '0')
+        return super(AccountInvoiceImport, self).create(vals)
 
     @api.multi
     def write(self, vals):
