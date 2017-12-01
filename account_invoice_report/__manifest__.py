@@ -14,7 +14,11 @@ Account invoice report
 Custom Qweb report, because Odoo's one is too ugly...
 
 """,
-    'depends': ['account', 'debrand_account_invoice_mail'],
+    'depends': [
+        'account',
+        'debrand_account_invoice_mail',
+        'l10n_es_partner_mercantil',
+    ],
     'data': [
         'views/res_company_view.xml',
         'views/report_invoice.xml'
