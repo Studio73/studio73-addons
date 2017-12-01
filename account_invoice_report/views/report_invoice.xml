@@ -4,9 +4,20 @@
 
     <template id="account_invoice_footer">
         <div class="footer">
-            <t t-if="o.company_id.custom_footer">
-                <span t-raw="o.company_id.rml_footer"/>
-            </t>
+            <div class="text-center">
+                <t t-if="o.company_id.custom_footer">
+                    <span t-raw="o.company_id.rml_footer"/>
+                </t>
+                <t t-if="not o.company_id.custom_footer">
+                    Inscrito en el Registro Mercantil de <span t-field="o.company_id.partner_id.es_registro_mercantil"/>,
+                    Tomo <span t-field="o.company_id.partner_id.es_tomo"/>,
+                    Libro <span t-field="o.company_id.partner_id.es_libro"/>,
+                    Folio <span t-field="o.company_id.partner_id.es_folio"/>
+                    Sección <span t-field="o.company_id.partner_id.es_seccion"/>,
+                    Hoja <span t-field="o.company_id.partner_id.es_hoja"/>
+                </t>
+            </div>
+
             <div class="text-right">
                 <ul class="list-inline">
                     <li><span class="page"/></li>
@@ -67,9 +78,6 @@
                     <div name="date_invoice">
                         Fecha: <span t-field="o.date_invoice"/>
                     </div>
-                    <div name="date_due" t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
-                        Fecha vencimiento: <span t-field="o.date_due"/>
-                    </div>
                 </div>
 
                 <div name="invoice_address" class="col-xs-7 text-right">
@@ -83,8 +91,15 @@
 
             <!-- Is there a discount on at least one line? -->
             <t t-set="display_discount" t-value="any([l.discount for l in o.invoice_line_ids])"/>
-            <t t-set="display_qty" t-value="any([l.quantity > 1 for l in o.invoice_line_ids])"/>
-
+            <t t-if="o.company_id.display_qty_on_invoice == 'higher'">
+                <t t-set="display_qty" t-value="any([l.quantity > 1 for l in o.invoice_line_ids])"/>
+            </t>
+            <t t-if="o.company_id.display_qty_on_invoice == 'always'">
+                <t t-set="display_qty" t-value="True"/>
+            </t>
+            <t t-if="o.company_id.display_qty_on_invoice == 'never'">
+                <t t-set="display_qty" t-value="False"/>
+            </t>
             <table class="table table-condensed" style="margin-top: 80px;">
                 <thead>
                     <tr>
@@ -119,45 +134,54 @@
                 </tbody>
             </table>
 
-            <div class="row" style="margin-top: 60px;">
-                <div class="col-xs-6">
-                    <p t-if="o.payment_term_id">
-                        <strong>Plazo de pago</strong> <span t-field="o.payment_term_id"/>
-                    </p>
-                    <p t-if="o.fiscal_position_id.note">
-                        <span t-field="o.fiscal_position_id.note"/>
-                    </p>
+            <div class="row last-page" id="taxes_table" style="margin-top:80px; padding-left:35px;">
+                <div class="col-xs-7" style="border:1px solid black; min-height: 100px;">
+                    <div>
+                        <div>Observaciones:</div>
+                        <div class="mt8">
+                            <span id="observaciones" t-field="o.comment"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xs-6">
+                <div class="col-xs-5">
                     <table class="table table-condensed">
-                        <tr>
+                        <tr class="border-black">
                             <td><strong>Subtotal</strong></td>
                             <td class="text-right">
-                                <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                <span t-field="o.amount_untaxed" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
                             </td>
                         </tr>
-                        <t t-foreach="o.tax_line_ids" t-as="line">
-                            <tr>
-                                <td><span t-esc="line.tax_id.description"/></td>
+                        <tr t-foreach="o.tax_line_ids" t-as="t">
+                                <td><span t-esc="t.name.split('-')[0]"/></td>
                                 <td class="text-right">
-                                    <span t-field="line.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    <span t-field="t.amount"
+                                        t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
                                 </td>
-                            </tr>
-                        </t>
-                        <tr>
+                        </tr>
+                        <tr style="font-size:22px;">
                             <td><strong>Total</strong></td>
                             <td class="text-right">
-                                 <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                <strong>
+                                    <span t-field="o.amount_total" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </strong>
                             </td>
                         </tr>
                     </table>
                 </div>
+                <div>
+                    <div t-if="o.payment_term_id">
+                        <strong>Plazo de pago</strong> <span t-field="o.payment_term_id"/>
+                    </div>
+                    <div t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                        <strong>Fecha de vencimiento</strong> <span t-field="o.date_due"/>
+                    </div>
+                    <div name="date_due" t-if="o.fiscal_position_id.note">
+                        <span t-field="o.fiscal_position_id.note"/>
+                    </div>
+                </div>
+
             </div>
-            <div class="row" style="margin-top: 60px;" t-if="o.comment">
-                <strong>Observaciones</strong>
-                <p t-field="o.comment"/>
-            </div>
-            <div name="reference" style="display: none;"></div>
+            <div name="reference" style="display: none;" />
         </div>
         <div id="wrap_footer">
             <t t-call="account_invoice_report.account_invoice_footer" />
