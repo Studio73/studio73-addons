@@ -14,6 +14,7 @@
     ],
     "data": [
         'views/account_invoice_import_view.xml',
+        'views/account_invoice_import_actions.xml',
         'security/ir.model.access.csv',
     ],
     "application": False,

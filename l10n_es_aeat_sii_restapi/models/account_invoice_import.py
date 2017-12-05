@@ -39,6 +39,11 @@ class AccountInvoiceImport(models.Model):
         return True
 
     @api.multi
+    def to_invoice_action_server(self):
+        self.to_invoice()
+        return {}
+
+    @api.multi
     def to_invoice(self):
         account_invoice_obj = self.env["account.invoice"]
         account_invoice_line_obj = self.env['account.invoice.line']
