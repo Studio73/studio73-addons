@@ -107,6 +107,15 @@
                     <div t-if="o.payment_term_id">
                         <strong>Plazo de pago</strong> <span t-field="o.payment_term_id"/>
                     </div>
+                    <div t-if="o.payment_mode_id">
+                        <strong>Payment Mode:</strong>
+                        <span t-field="o.payment_mode_id"/>
+                    </div>
+                    <div t-if="o.partner_bank_id">
+                        <strong>Bank Account:</strong>
+                        <t t-esc="o.partner_bank_id.bank_id.name + ('' if not o.partner_bank_id.bank_id.bic else ' (' + o.partner_bank_id.bank_id.bic + ')')"/>
+                        <span t-field="o.partner_bank_id.acc_number"/>
+                    </div>
                     <div t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                         <strong>Fecha de vencimiento</strong> <span t-field="o.date_due"/>
                     </div>
@@ -118,7 +127,7 @@
             </div>
             <br />
             <div class="row">
-                <div class="col-xs-10">
+                <div class="col-xs-10" style="font-size: 8pt;">
                     <t t-if="o.company_id.custom_footer">
                         <span t-raw="o.company_id.rml_footer"/>
                     </t>
@@ -176,9 +185,9 @@
                         <th>Description</th>
                         <th class="hidden">Source Document</th>
                         <th t-if="display_qty" class="text-right">Quantity</th>
-                        <th t-if="display_qty" class="text-right">Unit Price</th>
+                        <th t-if="display_qty" class="text-right" style="min-width: 100px;">Unit Price</th>
                         <th t-if="display_discount" class="text-right" groups="sale.group_discount_per_so_line">Disc.(%)</th>
-                        <th class="text-right">Importe</th>
+                        <th class="text-right" style="min-width: 120px;">Importe</th>
                     </tr>
                 </thead>
                 <tbody class="invoice_tbody">
@@ -206,6 +215,9 @@
 
             <div name="reference" style="display: none;" />
             <div name="invoice_address" style="display: none;" />
+            <div style="display: none;">
+                <p t-if='o.payment_term_id' />
+            </div>
         </div>
         <div id="wrap_footer">
             <t t-call="account_invoice_report.account_invoice_footer" />

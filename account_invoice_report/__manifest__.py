@@ -19,6 +19,7 @@ Custom Qweb report, because Odoo's one is too ugly...
         'debrand_account_invoice_mail',
         'l10n_es_partner_mercantil',
         'report_qweb_element_page_visibility',
+        'account_payment_partner',
     ],
     'data': [
         'views/res_company_view.xml',
