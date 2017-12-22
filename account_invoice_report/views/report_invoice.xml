@@ -3,7 +3,7 @@
 <data>
 
     <template id="account_invoice_header">
-        <div class="header">
+        <div class="header" style="font-size: 12.0pt; font-family: 'Helvetica','sans-serif';">
             <div class="row">
                 <div class="col-xs-5">
                     <div class="row">
@@ -55,20 +55,11 @@
 
                 </div>
             </div>
-            <!--<div class="row" style="margin-top: 30px;">-->
-                <!--<div class="col-xs-5">-->
-
-                <!--</div>-->
-
-                <!--<div name="invoice_address" class="col-xs-offset-2 col-xs-5">-->
-
-                <!--</div>-->
-            <!--</div>-->
         </div>
     </template>
 
     <template id="account_invoice_footer">
-        <div class="footer">
+        <div class="footer" style="font-size: 12.0pt; font-family: 'Helvetica','sans-serif';">
             <div class="row last-page" id="taxes_table" style="margin-top:80px; padding-left:35px;">
                 <div class="col-xs-7">
                     <div style="border:1px solid black; min-height: 100px; padding: 5px;" t-if="o.comment">
@@ -160,13 +151,14 @@
         <div class="page">
             <style>
                 body{
-                    font-size: 10.0pt;
+                    font-size: 12.0pt;
                     font-family: 'Helvetica','sans-serif';
                 }
                 .footer{
-                    font-size: 10.0pt;
+                    font-size: 12.0pt;
                     font-family: 'Helvetica','sans-serif';
                 }
+
             </style>
             <!-- Is there a discount on at least one line? -->
             <t t-set="display_discount" t-value="any([l.discount for l in o.invoice_line_ids])"/>
