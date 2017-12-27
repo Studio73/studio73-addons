@@ -206,9 +206,9 @@
             </table>
 
             <div name="reference" style="display: none;" />
-            <div name="invoice_address" style="display: none;" />
             <div style="display: none;">
                 <p t-if='o.payment_term_id' />
+                <div name="invoice_address" style="display: none;" />
             </div>
         </div>
         <div id="wrap_footer">
