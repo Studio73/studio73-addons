@@ -131,9 +131,9 @@ class AccountInvoiceImport(models.Model):
                     elif line.type == 'S2':
                         tax_codes.append('S_IVA0_ISP')
                     elif line.type == 'E5':
-                        tax_codes.append('S_IVA0_IC')
+                        tax_codes.append('P_IVA0_BC')
                     elif line.type == 'E4':
-                        tax_codes.append('S_IVA0')
+                        tax_codes.append('P_IVA0_BC')
                         product_id = self.env['product.product'].search([
                             ('name', '=', 'E4')],
                             limit=1)
