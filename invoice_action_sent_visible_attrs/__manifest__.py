@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Invoice action sent visible by state',
+    'name': 'Invoice action sent visible attrs',
     'version': '10.0.0.2.0',
     'sequence': 14,
     'category': 'Account',
