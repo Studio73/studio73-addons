@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_invoice_mass_mailing_form" model="ir.ui.view">
+        <field name="name">account.invoice.mass_mailing.form</field>
+        <field name="model">account.invoice.mass_mailing</field>
+        <field name="arch" type="xml">
+            <form string="Envio de facturas">
+                <group>
+                    <field name="template_id"/>
+                </group>
+                <footer>
+                    <button name="send_invoices"
+                            string="Enviar facturas"
+                            type="object"
+                            class="oe_highlight"/>
+                    o
+                    <button string="Cancelar"
+                            class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!--<record id="action_account_invoice_mass_mailing"-->
+            <!--model="ir.actions.act_window">-->
+        <!--<field name="name">Envio de facturas</field>-->
+        <!--<field name="type">ir.actions.act_window</field>-->
+        <!--<field name="res_model">account.invoice.mass_mailing</field>-->
+        <!--<field name="view_type">form</field>-->
+        <!--<field name="view_mode">form</field>-->
+        <!--<field name="target">new</field>-->
+    <!--</record>-->
+
+    <act_window
+            name="Envio masivo de facturas"
+            res_model="account.invoice.mass_mailing"
+            src_model="account.invoice"
+            key2="client_action_multi"
+            view_mode="form"
+            view_type="form"
+            target="new"
+            id="action_account_invoice_mass_mailing"/>
+</odoo>
