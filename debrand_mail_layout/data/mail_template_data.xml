@@ -14,11 +14,11 @@
     <div style="text-align: center; margin-bottom: 20px;">
         % if company.website:
             <a href="${company.website}" style="text-decoration: none; color: #000">
-                <img src="/logo.png?company=${company.id}" style="padding: 0px; margin: 0px; height: auto; width: 150px;" alt="${company.name}">
+                <img src="/logo.png?company=${company.id}" style="padding: 0px; margin: 0px; height: auto; width: 100px;" alt="${company.name}">
             </a>
         % endif
         % if not company.website:
-            <img src="/logo.png?company=${company.id}" style="padding: 0px; margin: 0px; height: auto; width: 150px;" alt="${company.name}">
+            <img src="/logo.png?company=${company.id}" style="padding: 0px; margin: 0px; height: auto; width: 100px;" alt="${company.name}">
         % endif
 
     </div>
@@ -39,6 +39,11 @@
                     <strong>${company.name}</strong>
                     % endif
                 </td>
+            </tr>
+            <tr>
+                <td>
+                    ${company.zip} ${company.city}</span>
+                <td>
             </tr>
             <tr>
                 <td>
