@@ -377,7 +377,7 @@ class AccountInvoiceImport(models.Model):
     realproperty_cadastrial_code = fields.Char(string="Real property cadastrial code")
     state = fields.Selection(string="State", selection=[("draft", "Draft"),
                                                         ("validated", "Validated")], default="draft")
-    invoice_id = fields.Many2one("account.invoice", string="Invoice")
+    invoice_id = fields.Many2one("account.invoice", string="Invoice", copy=False)
     company_id = fields.Many2one("res.company", string="Company", required=True, default=_get_default_company)
     sii_state = fields.Selection(
         string="SII send state", readonly=True, copy=False, help="Indicates the state of this invoice in relation with "
