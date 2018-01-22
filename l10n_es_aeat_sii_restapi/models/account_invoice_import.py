@@ -44,7 +44,28 @@ class AccountInvoiceImport(models.Model):
         return {}
 
     @api.multi
+    def to_invoice_from_xmlrpc(self):
+        """
+        - Creamos esta funcion que llama a la funcion inicial, para que desde un script en el cual hacemos la conexion
+        con el usuario admin, no de ningun problema de compañía, ya que aquí lo que hacemos es forzar que la tarea
+        se haga con un usuario de la compañía de la factura
+        :return:
+        """
+
+        if self.env.user.company_id != self.company_id:
+            company_user = self.env["res.users"].search([("company_id", "=", self.company_id.id)], limit=1)
+            self = self.sudo(company_user.id)
+
+        if not self.line_ids:
+            return True
+
+        self.to_invoice()
+
+        return True
+
+    @api.multi
     def to_invoice(self):
+
         account_invoice_obj = self.env["account.invoice"]
         account_invoice_line_obj = self.env['account.invoice.line']
         account_tax_obj = self.env["account.tax"]
@@ -209,16 +230,19 @@ class AccountInvoiceImport(models.Model):
                     partner = res_partner_obj.search([('vat', 'ilike', self.vat)], limit=1)
         fposition = self.get_fposition()
 
+        account_rec = \
+            account_account_obj.search([('code', 'like', '430000'), ('company_id', '=', self.company_id.id)],
+                                       limit=1)
+        account_pay = \
+            account_account_obj.search([('code', 'like', '410000'), ('company_id', '=', self.company_id.id)],
+                                       limit=1)
+
+        if not (account_rec or account_pay):
+            raise Warning(_('Company is not available to receive invoices.'
+                            ' Contact with the IT support team'))
+
         if not partner:
-            account_rec = \
-                account_account_obj.search([('code', 'like', '430000')],
-                                           limit=1)
-            account_pay = \
-                account_account_obj.search([('code', 'like', '410000')],
-                                           limit=1)
-            if not (account_rec or account_pay):
-                raise Warning(_('Company is not available to receive invoices.'
-                                ' Contact with the IT support team'))
+
             if self.country_id.code == "GR":
                 country_code = "EL"
             else:
@@ -248,6 +272,10 @@ class AccountInvoiceImport(models.Model):
                 partner.name = self.name
             if partner.property_account_position != fposition:
                 partner.property_account_position = fposition.id
+            if not partner.property_account_receivable:
+                partner.property_account_receivable = account_rec.id
+            if not partner.property_account_payable:
+                partner.property_account_payable = account_pay.id
 
         return partner
 
