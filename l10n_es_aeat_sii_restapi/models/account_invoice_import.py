@@ -294,13 +294,13 @@ class AccountInvoiceImport(models.Model):
         # Conseguir la posicion fiscal en base al pais
         if country.code == 'ES':
             fposition = account_fiscal_pos_obj.search(
-                [('name', '=', u'Régimen Nacional')], limit=1)
+                [('name', '=', u'Régimen Nacional'), ('company_id', '=', self.company_id.id)], limit=1)
         elif country.code in europe:
             fposition = account_fiscal_pos_obj.search(
-                [('name', '=', u'Régimen Intracomunitario')], limit=1)
+                [('name', '=', u'Régimen Intracomunitario'), ('company_id', '=', self.company_id.id)], limit=1)
         else:
             fposition = account_fiscal_pos_obj.search(
-                [('name', 'like', u'Régimen Extracomunitario')], limit=1)
+                [('name', 'like', u'Régimen Extracomunitario'), ('company_id', '=', self.company_id.id)], limit=1)
 
         return fposition
 
