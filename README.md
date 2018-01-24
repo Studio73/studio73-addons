@@ -11,5 +11,6 @@ Modulos disponibles
 | [debrand_account_invoice_mail](debrand_account_invoice_mail/) | Utilizar nuestra plantilla personalizada para el email de facturas |
 | [debrand_mail_layout](debrand_mail_layout/) | Plantilla de email personalizada más bonita que la de Odoo  |
 | [debrand_sale_order_mail](debrand_sale_order_mail/) | Utilizar nuestra plantilla personalizada para el email de pedidos de venta |
+| [sale_order_report_payment_mode](sale_order_report_payment_mode/) | Modifica el criterio de mostrar el modo de pago en los informes pedidos de venta y incluye las cuentas bancarias relacioandas si las tiene |
 | [web_print_screen](web_print_screen/) | Esconder menus y mostrar todo el contenido de la vista al imprimir pantalla  |
 
