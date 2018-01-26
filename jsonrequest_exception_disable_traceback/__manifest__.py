@@ -4,7 +4,7 @@
 
 {
     'name': 'jsonrequest exception disable traceback',
-    'version': '8.0.1.0.0',
+    'version': '10.0.1.0.0',
     'description': """
     En caso de error en una petición de tipo JSONRPC no devolver al usuario el traceback del error. 
     """,
