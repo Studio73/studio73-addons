@@ -490,7 +490,7 @@ class AccountSpecificIntracommunityTransactions(models.Model):
         for transaction in self:
             company = transaction.company_id
             if not company.use_connector:
-                transaction._send_transactionto_sii()
+                transaction._send_transaction_to_sii()
             else:
                 eta = company._get_sii_eta()
                 ctx = self.env.context.copy()
