@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <record id="account_investment_assets_tree" model="ir.ui.view">
+        <field name="name">account.investment.assets.tree</field>
+        <field name="model">account.investment.assets</field>
+        <field name="arch" type="xml">
+            <tree colors="red:sii_state == 'sent_w_errors';gray:sii_state in ('sent','cancelled');blue:state == 'draft'">
+                <field name="name"/>
+                <field name="invoice_number"/>
+                <field name="invoice_date"/>
+                <field name="state"/>
+                <field name="sii_state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="account_investment_assets_form" model="ir.ui.view">
+        <field name="name">account.investment.assets.form</field>
+        <field name="model">account.investment.assets</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <header>
+                    <button name="validate_assets" states="draft" type="object" string="Validate"
+                            class="oe_highlight"/>
+                    <button name="cancel_assets" type="object" string="Cancel"
+                            attrs="{'invisible': ['|', ('state', 'in', ('validated', 'cancel')),('sii_state', '=', 'not_sent')]}"/>
+                    <button name="to_draft_assets" states="cancel,validated" type="object" string="To draft"
+                            class="oe_highlight"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,validated"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="period"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="name"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="identification_type"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="vat"
+                                   attrs="{'invisible': [('identification_type', '!=', '1')],
+                                               'required': [('identification_type', '=', '1')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="country_id"
+                                   attrs="{'invisible': [('identification_type', '!=', '0')],
+                                               'required': [('identification_type', '=', '0'),
+                                                            ('vat_type', '!=', '02')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"
+                                   options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                            <field name="vat_type"
+                                   attrs="{'invisible': [('identification_type', '!=', '0')],
+                                               'required': [('identification_type', '=', '0')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="identifier"
+                                   attrs="{'invisible': [('identification_type', '!=', '0')],
+                                               'required': [('identification_type', '=', '0')],
+                                               'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="invoice_number"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="invoice_date"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="date"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                        </group>
+                        <group>
+                            <field name="asset_identifier"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="utilization_start_date"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="definitive_annual_proportion"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="definitive_annual_regularization"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="delivery_identification"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="regularization_deduction_done"
+                                   attrs="{'readonly': [('state', 'in', ('validated', 'cancel'))]}"/>
+                            <field name="company_id"
+                                   readonly="True"
+                                   groups="base.group_multi_company"
+                                   widget="selection"/>
+                        </group>
+                        <group colspan="4">
+                            <group string="SII Result" colspan="2">
+                                <notebook>
+                                    <page name="page_sii_result_general" string="General">
+                                        <group>
+                                            <field name="sii_state"/>
+                                            <field name="sii_send_failed"
+                                                   attrs="{'invisible': [('sii_send_failed', '=', False)]}"/>
+                                            <field name="sii_send_error"
+                                                   attrs="{'invisible': [('sii_send_failed', '=', False)]}"/>
+                                            <field name="sii_csv"/>
+                                        </group>
+                                    </page>
+                                    <page name="page_sii_result_technical" string="Technical">
+                                        <group>
+                                            <label for="sii_header_sent"/>
+                                        </group>
+                                        <field name="sii_header_sent"/>
+                                        <group>
+                                            <label for="sii_content_sent"/>
+                                        </group>
+                                        <field name="sii_content_sent"/>
+                                        <group>
+                                            <label for="sii_return"/>
+                                        </group>
+                                        <field name="sii_return"/>
+                                    </page>
+                                </notebook>
+                            </group>
+
+                            <group string="Connector Jobs" colspan="2">
+                                <field name="asset_jobs_ids"
+                                       nolabel="1"
+                                       readonly="1"
+                                       context="{'tree_view_ref': 'l10n_es_aeat_sii.view_queue_job_sii'}"
+                                />
+                            </group>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="account_investment_assets_search" model="ir.ui.view">
+        <field name="name">account.investment.assets.search</field>
+        <field name="model">account.investment.assets</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="invoice_number"/>
+                <field name="invoice_date" string="Invoice date from"
+                       filter_domain="[('invoice_date','&gt;=', self)]"/>
+                <field name="invoice_date" string="Invoice date to"
+                       filter_domain="[('invoice_date','&lt;=', self)]"/>
+                <field name="country_id"/>
+                <separator/>
+                <group expand='0' string='Group by'>
+                    <filter string="Name" context="{'group_by': 'name'}"/>
+                    <filter string="State" context="{'group_by': 'state'}"/>
+                    <filter string="Country" context="{'group_by': 'country_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_investment_assets" model="ir.actions.act_window">
+        <field name="name">Investment assets</field>
+        <field name="res_model">account.investment.assets</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+            name="Ledger of investment assets"
+            id="menu_ledger_investment_assets"
+            parent="account.menu_finance"
+            sequence="1"/>
+
+    <menuitem
+            action="action_investment_assets"
+            id="menu_investment_assets"
+            parent="menu_ledger_investment_assets"/>
+</openerp>

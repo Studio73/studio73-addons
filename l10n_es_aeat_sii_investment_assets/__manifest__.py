@@ -12,7 +12,8 @@
         "l10n_es_aeat_sii",
     ],
     "data": [
-
+        'views/account_investment_assets_view.xml',
+        'security/ir.model.access.csv'
     ],
     "installable": True,
 }
