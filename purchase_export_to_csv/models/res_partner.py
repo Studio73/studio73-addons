@@ -4,4 +4,10 @@
 #
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from . import models
+from odoo import fields, models, api
+
+
+class ResPartner(models.Model):
+    _inherit = 'res.partner'
+
+    shipping_code_hilding = fields.Integer(string="Dirección entrega Hilding")

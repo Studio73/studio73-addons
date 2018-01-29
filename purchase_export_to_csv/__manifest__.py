@@ -8,11 +8,9 @@
     'summary': 'Export purchase order to csv',
     'website': 'http://www.studio73.es',
     'description': """""",
-    'depends': [
-        'purchase',
-    ],
+    'depends': ['purchase'],
     'data': [
-
+        'views/res_partner.xml',
     ],
     'installable': True,
 }
