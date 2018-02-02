@@ -201,7 +201,7 @@ class AccountInvoiceImport(models.Model):
             invoice = inv_import.invoice_id
             if invoice:
                 if not invoice.sii_state or invoice.sii_state not in ["sent", "sent_w_errors", "sent_modified"]:
-                    invoice.action_cancel()
+                    invoice.action_invoice_cancel()
                     invoice.internal_number = False
                     invoice.move_name = False
                     invoice.unlink()
@@ -209,6 +209,7 @@ class AccountInvoiceImport(models.Model):
                     invoice.action_invoice_cancel()
                     invoice.action_invoice_draft()
                     invoice.internal_number = False
+                    invoice.state = "draft"
                     invoice.invoice_line_ids.unlink()
             inv_import.state = "draft"
         return True
