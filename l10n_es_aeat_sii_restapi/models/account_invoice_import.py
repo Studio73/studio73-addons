@@ -209,7 +209,6 @@ class AccountInvoiceImport(models.Model):
                     invoice.action_invoice_cancel()
                     invoice.action_invoice_draft()
                     invoice.internal_number = False
-                    invoice.move_name = False
                     invoice.invoice_line_ids.unlink()
             inv_import.state = "draft"
         return True
