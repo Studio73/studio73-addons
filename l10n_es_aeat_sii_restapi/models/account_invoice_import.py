@@ -336,8 +336,12 @@ class AccountInvoiceImport(models.Model):
         selection=[("A0", "A0 - Register new invoice"), ("A1", "A1 - Modify existing invoice")],
         default="A0"
     )
-    partner_id = fields.Many2one(comodel_name="res.partner", string="Invoice recipient name")
-    name = fields.Char(string="Invoice recipient name", required=True)
+    partner_id = fields.Many2one(comodel_name="res.partner", string="Partner")
+    name = fields.Char(
+        string="Partner",
+        required=True,
+        track_visibility='always'
+    )
     vat = fields.Char(string="Recipient’s VAT-Id number", required=True)
     vat_type = fields.Selection(
         string="Recipient’s VAT-Id Type",
@@ -357,7 +361,8 @@ class AccountInvoiceImport(models.Model):
         selection=[('out_invoice', _('Issued invoice')),
                    ('in_invoice', _('Received invoice')),
                    ('out_refund', _('Rectified/amended issued invoice')),
-                   ('in_refund', _('Rectified/amended received invoice'))]
+                   ('in_refund', _('Rectified/amended received invoice'))],
+        track_visibility='always'
     )
     number = fields.Char(string="Invoice number", required=True)
     invoice_type = fields.Selection(
@@ -403,13 +408,31 @@ class AccountInvoiceImport(models.Model):
         required=True
     )
     registration_key_id_code = fields.Char(related='registration_key_id.code', string="Registration key code")
-    currency_id = fields.Many2one("res.currency", string="Currency", default=_get_default_currency)
+    currency_id = fields.Many2one(
+        comodel_name="res.currency",
+        string="Currency",
+        default=_get_default_currency,
+        track_visibility='always'
+    )
     third_party = fields.Boolean(string="Third party", default=False)
     third_party_number = fields.Char(string="Third party number")
-    base = fields.Float(string="Base", store=True, compute="_calculate_amount")
-    tax_amount = fields.Float(string="Tax amount", store=True, compute="_calculate_amount")
+    base = fields.Float(
+        string="Base",
+        store=True,
+        compute="_calculate_amount",
+        track_visibility='always'
+    )
+    tax_amount = fields.Float(
+        string="Tax amount",
+        store=True,
+        compute="_calculate_amount",
+        track_visibility='always'
+    )
     line_ids = fields.One2many(
-        comodel_name="account.invoice.import.line", inverse_name="invoice_import_id", string="Lines", required=True
+        comodel_name="account.invoice.import.line",
+        inverse_name="invoice_import_id",
+        string="Lines",
+        required=True
     )
     payment_date = fields.Date(string="Payment date")
     payment_amount = fields.Float(string="Payment amount")
@@ -434,7 +457,8 @@ class AccountInvoiceImport(models.Model):
         string="State",
         selection=[("draft", "Draft"),
                    ("validated", "Validated")],
-        default="draft"
+        default="draft",
+        track_visibility='onchange'
     )
     invoice_id = fields.Many2one("account.invoice", string="Invoice", copy=False)
     company_id = fields.Many2one("res.company", string="Company", required=True, default=_get_default_company)
