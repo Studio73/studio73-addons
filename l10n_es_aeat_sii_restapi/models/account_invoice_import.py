@@ -9,6 +9,7 @@ from odoo.exceptions import Warning
 
 
 class AccountInvoiceImport(models.Model):
+    _inherit = ['mail.thread']
     _name = 'account.invoice.import'
     _order = 'number DESC'
     _description = 'Account invoice import'
