@@ -111,25 +111,27 @@ class AccountInvoiceImport(models.Model):
                 invoice.write(invoice_vals)
 
             if inv_import.type in ['out_invoice', 'out_refund']:
-                account_line_id = \
-                    invoice.journal_id.default_debit_account_id.id
+                account_line_id = partner.account_receivable_id \
+                                  and partner.account_receivable_id.id \
+                                  or False
+                if not account_line_id:
+                    account_line_id = \
+                        invoice.journal_id.default_debit_account_id.id
             else:
-                account_line_id = \
-                    invoice.journal_id.default_credit_account_id.id
+                account_line_id = partner.account_payable_id \
+                                  and partner.account_payable_id.id \
+                                  or False
+                if not account_line_id:
+                    account_line_id = \
+                        invoice.journal_id.default_credit_account_id.id
 
             for line in inv_import.line_ids:
                 tax_codes = []
                 product_id = False
                 if inv_import.type in ['out_invoice', 'out_refund']:
                     if line.type == 'S1':
-                        if line.tax_type == '21':
-                            tax_codes.append('S_IVA21B')
-                        elif line.tax_type == '10':
-                            tax_codes.append('S_IVA10B')
-                        elif line.tax_type == '4':
-                            tax_codes.append('S_IVA4B')
-                        elif line.tax_type == '0':
-                            tax_codes.append('S_IVA0')
+                        if line.tax_type in ['21', '10', '4', '0']:
+                            tax_codes.append('S_IVA%sB' % line.tax_type)
                         else:
                             raise Warning(
                                 _('The tax type of the lines is not supported.'
@@ -145,21 +147,51 @@ class AccountInvoiceImport(models.Model):
                             [('name', '=', 'E4')], limit=1)
                 else:
                     if line.type == 'S1':
-                        if line.tax_type == '21':
-                            tax_codes.append('P_IVA21_BC')
-                        elif line.tax_type == '10':
-                            tax_codes.append('P_IVA10_BC')
-                        elif line.tax_type == '4':
-                            tax_codes.append('P_IVA4_BC')
-                        elif line.tax_type == '0':
-                            tax_codes.append('P_IVA0_BC')
+                        if line.tax_type in ['21', '10', '4', '0']:
+                            tax_codes.append('P_IVA%s_BC' % line.tax_type)
                         else:
                             raise Warning(
                                 _('The tax type of the lines is not supported.'
                                   ' Contact with the IT support team')
                             )
                     elif line.type == 'S2':
-                        tax_codes.append('S_IVA0_ISP')
+                        partner_fposition = \
+                            partner.property_account_position_id \
+                            and partner.property_account_position_id.name or ''
+                        if partner_fposition == u'Régimen Nacional':
+                            if line.tax_type in ['21', '10', '4']:
+                                tax_codes.append('P_IVA%s_ISP_1'
+                                                 % line.tax_type)
+                            else:
+                                raise Warning(
+                                    _(
+                                        'The tax type of the lines is not '
+                                        'supported. Contact with the IT '
+                                        'support team')
+                                )
+                        elif partner_fposition == u'Régimen Intracomunitario':
+                            if line.tax_type in ['21', '10', '4']:
+                                tax_codes.append('P_IVA%s_SP_IN_1'
+                                                 % line.tax_type)
+                            else:
+                                raise Warning(
+                                    _(
+                                        'The tax type of the lines is not '
+                                        'supported. Contact with the IT '
+                                        'support team')
+                                )
+                        elif partner_fposition == u'Régimen Extracomunitario':
+                            if line.tax_type in ['21', '10', '4']:
+                                tax_codes.append('P_IVA%s_SP_EX_1'
+                                                 % line.tax_type)
+                            else:
+                                raise Warning(
+                                    _(
+                                        'The tax type of the lines is not '
+                                        'supported. Contact with the IT '
+                                        'support team')
+                                )
+
                     elif line.type == 'E5':
                         tax_codes.append('P_IVA0_BC')
                     elif line.type == 'E4':
