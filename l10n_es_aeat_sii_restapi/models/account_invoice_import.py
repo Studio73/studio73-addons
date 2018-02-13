@@ -9,6 +9,7 @@ from odoo.exceptions import Warning
 
 
 class AccountInvoiceImport(models.Model):
+    _inherit = ['mail.thread']
     _name = 'account.invoice.import'
     _order = 'number DESC'
     _description = 'Account invoice import'
@@ -47,14 +48,16 @@ class AccountInvoiceImport(models.Model):
     @api.multi
     def to_invoice_force_company_user(self):
         """
-        - Si queremos validar una importación de factura desde un usuario que pertenece a una compañía diferente a
-            la compañía de la importación, para que no haya ningún problema de compañía al generar asientos,
-            apuntes, etc...forzamos que la validación se haga con un usuario de la misma compañía que tiene
-            asignada la importación
+        - Si queremos validar una importación de factura desde un usuario que
+          pertenece a una compañía diferente a la compañía de la importación,
+          para que no haya ningún problema de compañía al generar asientos,
+          apuntes, etc...forzamos que la validación se haga con un usuario de
+          la misma compañía que tiene asignada la importación
         """
 
         if self.env.user.company_id != self.company_id:
-            company_user = self.env["res.users"].search([("company_id", "=", self.company_id.id)], limit=1)
+            company_user = self.env["res.users"].search(
+                [("company_id", "=", self.company_id.id)], limit=1)
             self = self.sudo(company_user.id)
 
         self.to_invoice()
@@ -83,8 +86,9 @@ class AccountInvoiceImport(models.Model):
             invoice_vals = {
                 "partner_id": partner.id,
                 "account_id": account_id,
-                "fiscal_position_id": partner.property_account_position_id and
-                                      partner.property_account_position_id.id or False,
+                "fiscal_position_id":
+                    partner.property_account_position_id and
+                    partner.property_account_position_id.id or False,
                 "date": inv_import.date,
                 "number": inv_import.number,
                 "reference": inv_import.supplier_number or '',
@@ -107,26 +111,31 @@ class AccountInvoiceImport(models.Model):
                 invoice.write(invoice_vals)
 
             if inv_import.type in ['out_invoice', 'out_refund']:
-                account_line_id = invoice.journal_id.default_debit_account_id.id
+                account_line_id = partner.account_receivable_id \
+                                  and partner.account_receivable_id.id \
+                                  or False
+                if not account_line_id:
+                    account_line_id = \
+                        invoice.journal_id.default_debit_account_id.id
             else:
-                account_line_id = invoice.journal_id.default_credit_account_id.id
+                account_line_id = partner.account_payable_id \
+                                  and partner.account_payable_id.id \
+                                  or False
+                if not account_line_id:
+                    account_line_id = \
+                        invoice.journal_id.default_credit_account_id.id
 
             for line in inv_import.line_ids:
                 tax_codes = []
                 product_id = False
                 if inv_import.type in ['out_invoice', 'out_refund']:
                     if line.type == 'S1':
-                        if line.tax_type == '21':
-                            tax_codes.append('S_IVA21B')
-                        elif line.tax_type == '10':
-                            tax_codes.append('S_IVA10B')
-                        elif line.tax_type == '4':
-                            tax_codes.append('S_IVA4B')
-                        elif line.tax_type == '0':
-                            tax_codes.append('S_IVA0')
+                        if line.tax_type in ['21', '10', '4', '0']:
+                            tax_codes.append('S_IVA%sB' % line.tax_type)
                         else:
                             raise Warning(
-                                _('The tax type of the lines is not supported. Contact with the IT support team')
+                                _('The tax type of the lines is not supported.'
+                                  ' Contact with the IT support team')
                             )
                     elif line.type == 'S2':
                         tax_codes.append('S_IVA0_ISP')
@@ -134,34 +143,68 @@ class AccountInvoiceImport(models.Model):
                         tax_codes.append('S_IVA0_IC')
                     elif line.type == 'E4':
                         tax_codes.append('S_IVA0')
-                        product_id = self.env['product.product'].search([('name', '=', 'E4')], limit=1)
+                        product_id = self.env['product.product'].search(
+                            [('name', '=', 'E4')], limit=1)
                 else:
                     if line.type == 'S1':
-                        if line.tax_type == '21':
-                            tax_codes.append('P_IVA21_BC')
-                        elif line.tax_type == '10':
-                            tax_codes.append('P_IVA10_BC')
-                        elif line.tax_type == '4':
-                            tax_codes.append('P_IVA4_BC')
-                        elif line.tax_type == '0':
-                            tax_codes.append('P_IVA0_BC')
+                        if line.tax_type in ['21', '10', '4', '0']:
+                            tax_codes.append('P_IVA%s_BC' % line.tax_type)
                         else:
                             raise Warning(
-                                _('The tax type of the lines is not supported. Contact with the IT support team')
+                                _('The tax type of the lines is not supported.'
+                                  ' Contact with the IT support team')
                             )
                     elif line.type == 'S2':
-                        tax_codes.append('S_IVA0_ISP')
+                        partner_fposition = \
+                            partner.property_account_position_id \
+                            and partner.property_account_position_id.name or ''
+                        if partner_fposition == u'Régimen Nacional':
+                            if line.tax_type in ['21', '10', '4']:
+                                tax_codes.append('P_IVA%s_ISP_1'
+                                                 % line.tax_type)
+                            else:
+                                raise Warning(
+                                    _(
+                                        'The tax type of the lines is not '
+                                        'supported. Contact with the IT '
+                                        'support team')
+                                )
+                        elif partner_fposition == u'Régimen Intracomunitario':
+                            if line.tax_type in ['21', '10', '4']:
+                                tax_codes.append('P_IVA%s_SP_IN_1'
+                                                 % line.tax_type)
+                            else:
+                                raise Warning(
+                                    _(
+                                        'The tax type of the lines is not '
+                                        'supported. Contact with the IT '
+                                        'support team')
+                                )
+                        elif partner_fposition == u'Régimen Extracomunitario':
+                            if line.tax_type in ['21', '10', '4']:
+                                tax_codes.append('P_IVA%s_SP_EX_1'
+                                                 % line.tax_type)
+                            else:
+                                raise Warning(
+                                    _(
+                                        'The tax type of the lines is not '
+                                        'supported. Contact with the IT '
+                                        'support team')
+                                )
+
                     elif line.type == 'E5':
                         tax_codes.append('P_IVA0_BC')
                     elif line.type == 'E4':
                         tax_codes.append('P_IVA0_BC')
-                        product_id = self.env['product.product'].search([('name', '=', 'E4')], limit=1)
+                        product_id = self.env['product.product'].search(
+                            [('name', '=', 'E4')], limit=1)
 
                 tax_ids = self.env["account.tax"]
                 for tax_code in tax_codes:
-                    tax_id = account_tax_obj.search(
-                        [('description', '=', tax_code), ('company_id', '=', invoice.company_id.id)], limit=1
-                    )
+                    tax_id = account_tax_obj.search([
+                        ('description', '=', tax_code),
+                        ('company_id', '=', invoice.company_id.id)
+                    ], limit=1)
                     tax_ids += tax_id
 
                 fpos = invoice.fiscal_position_id
@@ -192,15 +235,18 @@ class AccountInvoiceImport(models.Model):
     @api.multi
     def to_draft(self):
         """
-        - Si se vuelve a borrador una factura ya enviada al SII, en vez de intentar borrar la factura se debe
-            quedar en borrador a la espera de que se cambien datos y se valide de nuevo.
+        - Si se vuelve a borrador una factura ya enviada al SII, en vez de
+          intentar borrar la factura se debe quedar en borrador a la espera
+          de que se cambien datos y se valide de nuevo.
             - En caso de que no haya sido enviada, borramos la factura
-            - Si ha sido enviada, la dejamos en borrador y borramos unicamente las lineas
+            - Si ha sido enviada, la dejamos en borrador y borramos
+              unicamente las lineas
         """
         for inv_import in self:
             invoice = inv_import.invoice_id
             if invoice:
-                if not invoice.sii_state or invoice.sii_state not in ["sent", "sent_w_errors", "sent_modified"]:
+                if not invoice.sii_state or invoice.sii_state not in \
+                        ["sent", "sent_w_errors", "sent_modified"]:
                     invoice.action_invoice_cancel()
                     invoice.internal_number = False
                     invoice.move_name = False
@@ -218,7 +264,10 @@ class AccountInvoiceImport(models.Model):
     def get_partner(self):
         self.ensure_one()
         if self.vat == self.company_id.vat:
-            raise Warning(_('ERROR: The VAT-Id number can\'t be the same of the company.'))
+            raise Warning(
+                _('ERROR: The VAT-Id number can\'t'
+                  ' be the same of the company.')
+            )
 
         res_partner_obj = self.env["res.partner"]
         account_account_obj = self.env["account.account"]
@@ -226,21 +275,26 @@ class AccountInvoiceImport(models.Model):
         partner = self.partner_id
         if not partner:
             if self.vat:
-                partner = res_partner_obj.search([('vat', '=', self.vat)], limit=1)
+                partner = res_partner_obj.search(
+                    [('vat', '=', self.vat)], limit=1)
                 if not partner:
-                    partner = res_partner_obj.search([('vat', 'ilike', self.vat)], limit=1)
+                    partner = res_partner_obj.search(
+                        [('vat', 'ilike', self.vat)], limit=1)
         fposition = self.get_fposition()
 
-        account_rec = account_account_obj.search(
-            [('code', 'like', '430000'), ('company_id', '=', self.company_id.id)], limit=1
-        )
-        account_pay = account_account_obj.search(
-            [('code', 'like', '410000'), ('company_id', '=', self.company_id.id)], limit=1
-        )
+        account_rec = account_account_obj.search([
+            ('code', 'like', '430000'),
+            ('company_id', '=', self.company_id.id)
+        ], limit=1)
+        account_pay = account_account_obj.search([
+            ('code', 'like', '410000'),
+            ('company_id', '=', self.company_id.id)
+        ], limit=1)
 
         if not (account_rec or account_pay):
             raise Warning(
-                _('Company is not available to receive invoices. Contact with the IT support team')
+                _('Company is not available to receive invoices.'
+                  ' Contact with the IT support team')
             )
 
         if not partner:
@@ -294,23 +348,27 @@ class AccountInvoiceImport(models.Model):
         country = self.country_id
         # Conseguir la posicion fiscal en base al pais
         if country.code == 'ES':
-            fposition = account_fiscal_pos_obj.search(
-                [('name', '=', u'Régimen Nacional'), ('company_id', '=', self.company_id.id)], limit=1
-            )
+            fposition = account_fiscal_pos_obj.search([
+                ('name', '=', u'Régimen Nacional'),
+                ('company_id', '=', self.company_id.id)
+            ], limit=1)
         elif country.code in europe:
-            fposition = account_fiscal_pos_obj.search(
-                [('name', '=', u'Régimen Intracomunitario'), ('company_id', '=', self.company_id.id)], limit=1
-            )
+            fposition = account_fiscal_pos_obj.search([
+                ('name', '=', u'Régimen Intracomunitario'),
+                ('company_id', '=', self.company_id.id)
+            ], limit=1)
         else:
-            fposition = account_fiscal_pos_obj.search(
-                [('name', 'like', u'Régimen Extracomunitario'), ('company_id', '=', self.company_id.id)], limit=1
-            )
+            fposition = account_fiscal_pos_obj.search([
+                ('name', 'like', u'Régimen Extracomunitario'),
+                ('company_id', '=', self.company_id.id)
+            ], limit=1)
 
         return fposition
 
     def _get_default_invoice_type(self):
         type = self._context.get("type", False)
-        return type and "F1" if type in ["out_invoice", "in_invoice"] else "R4" or None
+        return type and "F1" if \
+            type in ["out_invoice", "in_invoice"] else "R4" or None
 
     def _get_default_registration_key(self):
         type = self._context.get("type", False)
@@ -320,11 +378,13 @@ class AccountInvoiceImport(models.Model):
         else:
             domain.append(("type", "=", "purchase"))
 
-        registration_key = self.env["aeat.sii.mapping.registration.keys"].search(domain)
+        registration_key = self.env[
+            "aeat.sii.mapping.registration.keys"].search(domain)
         return registration_key or None
 
     def _get_default_currency(self):
-        currency = self.env["res.currency"].search([("name", "=", "EUR")], limit=1)
+        currency = self.env["res.currency"].search(
+            [("name", "=", "EUR")], limit=1)
         return currency and currency.id or None
 
     def _get_default_company(self):
@@ -332,57 +392,77 @@ class AccountInvoiceImport(models.Model):
 
     operation = fields.Selection(
         string="Operation",
-        selection=[("A0", "A0 - Register new invoice"), ("A1", "A1 - Modify existing invoice")],
+        selection=[
+            ("A0", "A0 - Register new invoice"),
+            ("A1", "A1 - Modify existing invoice")
+        ],
         default="A0"
     )
-    partner_id = fields.Many2one(comodel_name="res.partner", string="Invoice recipient name")
-    name = fields.Char(string="Invoice recipient name", required=True)
+    partner_id = fields.Many2one(comodel_name="res.partner", string="Partner")
+    name = fields.Char(
+        string="Partner",
+        required=True,
+        track_visibility='always'
+    )
     vat = fields.Char(string="Recipient’s VAT-Id number", required=True)
     vat_type = fields.Selection(
         string="Recipient’s VAT-Id Type",
         selection=[('02', u'02 - NIF- VAT'),
                    ('03', u'03 - Passport'),
-                   ('04', u'04 - Official id document issued by the country or territory of residence'),
+                   ('04', u'04 - Official id document issued '
+                          u'by the country or territory of residence'),
                    ('05', u'05 - Certificate of residence'),
                    ('06', u'06 - Other documents'),
                    ('07', u'07 - NO CENSUS')],
         default="02",
         required=True
     )
-    country_id = fields.Many2one("res.country", string="Recipient’s country", required=True)
+    country_id = fields.Many2one(
+        comodel_name="res.country",
+        string="Recipient’s country",
+        required=True
+    )
     type = fields.Selection(
         string="Type",
         required=True,
         selection=[('out_invoice', _('Issued invoice')),
                    ('in_invoice', _('Received invoice')),
                    ('out_refund', _('Rectified/amended issued invoice')),
-                   ('in_refund', _('Rectified/amended received invoice'))]
+                   ('in_refund', _('Rectified/amended received invoice'))],
+        track_visibility='always'
     )
     number = fields.Char(string="Invoice number", required=True)
     invoice_type = fields.Selection(
         string="Invoice type",
-        selection=[("F1", u"F1 - Regular invoice"),
-                   ("F2", u"F2 - Simplified invoice (ticket)"),
-                   ("F3", u"F3 - Invoice replacing simplified invoices billed and declared"),
-                   ("F4", u"F4 - Record including a set of invoices"),
-                   ("F5", u"F5 - Import registers ( DUA)"),
-                   ("F6", u"F6 - Accounting records"),
-                   ("R1", u"R1 - Rectified/Amended invoice (Error well founded in law and Art. 80 "
-                          u"One Two and Six Spanish VAT Act)"),
-                   ("R2", u"R2 - Rectified/Amended invoice (ART. 80.3 LIVA)"),
-                   ("R3", u"R3 - Rectified/Amended invoice (Art. 80.4 LIVA)"),
-                   ("R4", u"R4 - Rectified/Amended invoice (All cases)"),
-                   ("R5", u"R5 - Rectified/Amended Bill on simplified invoices")],
+        selection=[
+            ("F1", u"F1 - Regular invoice"),
+            ("F2", u"F2 - Simplified invoice (ticket)"),
+            ("F3", u"F3 - Invoice replacing simplified invoices billed"
+                   u" and declared"),
+            ("F4", u"F4 - Record including a set of invoices"),
+            ("F5", u"F5 - Import registers ( DUA)"),
+            ("F6", u"F6 - Accounting records"),
+            ("R1", u"R1 - Rectified/Amended invoice (Error well founded "
+                   u"in law and Art. 80 One Two and Six Spanish VAT Act)"),
+            ("R2", u"R2 - Rectified/Amended invoice (ART. 80.3 LIVA)"),
+            ("R3", u"R3 - Rectified/Amended invoice (Art. 80.4 LIVA)"),
+            ("R4", u"R4 - Rectified/Amended invoice (All cases)"),
+            ("R5", u"R5 - Rectified/Amended Bill on simplified invoices")
+        ],
         default=_get_default_invoice_type,
         required=True
     )
     refund_type = fields.Selection(
         string="Refund type",
-        selection=[("S", "S - Substitutes entirely the original invoice."),
-                   ("I", "I - Corrects the original invoice by adding/substracting the amounts on it "
-                         "to the original invoice amounts.")]
+        selection=[
+            ("S", "S - Substitutes entirely the original invoice."),
+            ("I", "I - Corrects the original invoice by adding/substracting "
+                  "the amounts on it to the original invoice amounts.")
+        ]
     )
-    rectified_invoices_number = fields.Char(string="Number(s) of the invoice(s) rectified")
+    rectified_invoices_number = fields.Char(
+        string="Number(s) of the invoice(s) rectified"
+    )
     supplier_number = fields.Char(string="Supplier’s invoice number")
     description = fields.Char(string="Operation description", required=True)
     invoice_date = fields.Date(string="Invoice date", required=True)
@@ -396,56 +476,105 @@ class AccountInvoiceImport(models.Model):
     transaction_date = fields.Date(string="Transaction date")
     record_date = fields.Date(string="Record date")
     registration_key_id = fields.Many2one(
-        "aeat.sii.mapping.registration.keys",
+        comodel_name="aeat.sii.mapping.registration.keys",
         string="Registration key",
         default=_get_default_registration_key,
         required=True
     )
-    registration_key_id_code = fields.Char(related='registration_key_id.code', string="Registration key code")
-    currency_id = fields.Many2one("res.currency", string="Currency", default=_get_default_currency)
+    registration_key_id_code = fields.Char(
+        related='registration_key_id.code',
+        string="Registration key code"
+    )
+    currency_id = fields.Many2one(
+        comodel_name="res.currency",
+        string="Currency",
+        default=_get_default_currency,
+        track_visibility='always'
+    )
     third_party = fields.Boolean(string="Third party", default=False)
     third_party_number = fields.Char(string="Third party number")
-    base = fields.Float(string="Base", store=True, compute="_calculate_amount")
-    tax_amount = fields.Float(string="Tax amount", store=True, compute="_calculate_amount")
+    base = fields.Float(
+        string="Base",
+        store=True,
+        compute="_calculate_amount",
+        track_visibility='always'
+    )
+    tax_amount = fields.Float(
+        string="Tax amount",
+        store=True,
+        compute="_calculate_amount",
+        track_visibility='always'
+    )
     line_ids = fields.One2many(
-        comodel_name="account.invoice.import.line", inverse_name="invoice_import_id", string="Lines", required=True
+        comodel_name="account.invoice.import.line",
+        inverse_name="invoice_import_id",
+        string="Lines",
+        required=True
     )
     payment_date = fields.Date(string="Payment date")
     payment_amount = fields.Float(string="Payment amount")
     collection_payment_method = fields.Selection(
         string="Collection payment method",
-        selection=[("01", "01 - Transfer"),
-                   ("02", "02 - Check"),
-                   ("03", "03 - Waived / pay (deadline accrual / forced accrual in bankruptcy)"),
-                   ("04", "04 - Other means receivable / payable")]
+        selection=[
+            ("01", "01 - Transfer"),
+            ("02", "02 - Check"),
+            ("03", "03 - Waived / pay (deadline accrual / "
+                   "forced accrual in bankruptcy)"),
+            ("04", "04 - Other means receivable / payable")
+        ]
     )
     bank_account = fields.Char(string="IBAN")
     realproperty_location = fields.Selection(
         string="Real property location",
-        selection=[("1", u"1 - Real property with cadastral code located within the Spanish territory "
-                         u"except Basque Country and Navarra"),
-                   ("2", u"2 - Real property located in the Basque Country or Navarra"),
-                   ("3", u"3 - Real property in any of the above situations but without cadastral code."),
-                   ("4", u"4 - Real property located in a foreign country.")]
+        selection=[
+            ("1", u"1 - Real property with cadastral code located within "
+                  u"the Spanish territory except Basque Country and Navarra"),
+            ("2", u"2 - Real property located in the Basque "
+                  u"Country or Navarra"),
+            ("3", u"3 - Real property in any of the above situations "
+                  u"but without cadastral code."),
+            ("4", u"4 - Real property located in a foreign country.")
+        ]
     )
-    realproperty_cadastrial_code = fields.Char(string="Real property cadastrial code")
+    realproperty_cadastrial_code = fields.Char(
+        string="Real property cadastrial code"
+    )
     state = fields.Selection(
         string="State",
-        selection=[("draft", "Draft"),
-                   ("validated", "Validated")],
-        default="draft"
+        selection=[
+            ("draft", "Draft"),
+            ("validated", "Validated")
+        ],
+        default="draft",
+        track_visibility='onchange'
     )
-    invoice_id = fields.Many2one("account.invoice", string="Invoice", copy=False)
-    company_id = fields.Many2one("res.company", string="Company", required=True, default=_get_default_company)
+    invoice_id = fields.Many2one(
+        comodel_name="account.invoice",
+        string="Invoice",
+        copy=False
+    )
+    company_id = fields.Many2one(
+        comodel_name="res.company",
+        string="Company",
+        required=True,
+        default=_get_default_company
+    )
     sii_state = fields.Selection(
         string="SII send state",
         readonly=True,
         copy=False,
-        help="Indicates the state of this invoice in relation with the presentation at the SII",
+        help="Indicates the state of this invoice in relation"
+             " with the presentation at the SII",
         related="invoice_id.sii_state",
         store=True
     )
-    sii_csv = fields.Char(string='SII CSV', copy=False, readonly=True, related="invoice_id.sii_csv", store=True)
+    sii_csv = fields.Char(
+        string='SII CSV',
+        copy=False,
+        readonly=True,
+        related="invoice_id.sii_csv",
+        store=True
+    )
     invoice_jobs_ids = fields.Many2many(
         comodel_name='queue.job',
         column1='invoice_id',
@@ -457,24 +586,38 @@ class AccountInvoiceImport(models.Model):
         store=True
     )
     sii_header_sent = fields.Text(
-        string="SII last header sent", copy=False, readonly=True, related="invoice_id.sii_header_sent", store=True
+        string="SII last header sent",
+        copy=False,
+        readonly=True,
+        related="invoice_id.sii_header_sent",
+        store=True
     )
     sii_content_sent = fields.Text(
-        string="SII last content sent", copy=False, readonly=True, related="invoice_id.sii_content_sent", store=True
+        string="SII last content sent",
+        copy=False,
+        readonly=True,
+        related="invoice_id.sii_content_sent",
+        store=True
     )
     sii_return = fields.Text(
-        string='SII Return', copy=False, readonly=True, related="invoice_id.sii_return", store=True
+        string='SII Return',
+        copy=False,
+        readonly=True,
+        related="invoice_id.sii_return",
+        store=True
     )
     delivery_in_progress = fields.Boolean(string="Delivery in progress")
     intracommunity_operation = fields.Boolean(
-        string="Intracommunity Operation", compute="_compute_intracommunity_operation"
+        string="Intracommunity Operation",
+        compute="_compute_intracommunity_operation"
     )
     down_payment = fields.Boolean(string="Down payment")
     dispatch_goods = fields.Boolean(string="Dispatch of goods")
 
     @api.multi
     def _compute_intracommunity_operation(self):
-        europe_country_group = self.env["res.country.group"].search([("name", "ilike", "europe")], limit=1)
+        europe_country_group = self.env["res.country.group"].search(
+            [("name", "ilike", "europe")], limit=1)
         if not europe_country_group:
             return
         for inv in self.filtered(lambda i: i.country_id):
@@ -512,7 +655,8 @@ class AccountInvoiceImport(models.Model):
             res = {
                 'warning': {
                     'title': _('Warning'),
-                    'message': _('Remember to fill the transaction date field with the transport start date.')
+                    'message': _('Remember to fill the transaction date '
+                                 'field with the transport start date.')
                 }
             }
         if res:
@@ -535,9 +679,11 @@ class AccountInvoiceImport(models.Model):
     def onchange_vat(self):
         partner_id = False
         if self.vat:
-            partner_id = self.env['res.partner'].search([('vat','=', self.vat)], limit=1)
+            partner_id = self.env['res.partner'].search(
+                [('vat', '=', self.vat)], limit=1)
             if not partner_id:
-                partner_id = self.env['res.partner'].search([('vat', 'ilike', self.vat)], limit=1)
+                partner_id = self.env['res.partner'].search(
+                    [('vat', 'ilike', self.vat)], limit=1)
         self.vat = partner_id and partner_id.vat or self.vat
         self.partner_id = partner_id
         self.name = partner_id and partner_id.name or False
@@ -548,55 +694,89 @@ class AccountInvoiceImportLine(models.Model):
     _name = "account.invoice.import.line"
     _description = 'Account invoice import line'
 
-    invoice_import_id = fields.Many2one("account.invoice.import", string="Import invoice", ondelete="cascade")
-    invoice_line_id = fields.Many2one("account.invoice.line", string="Invoice line")
+    invoice_import_id = fields.Many2one(
+        comodel_name="account.invoice.import",
+        string="Import invoice",
+        ondelete="cascade"
+    )
+    invoice_line_id = fields.Many2one(
+        comodel_name="account.invoice.line",
+        string="Invoice line"
+    )
     type = fields.Selection(
         string="Type",
-        selection=[("S1", u"S1 - No Exempt – No reverse charge mechanism"),
-                   ("S2", u"S2 - No exempt – reverse charge mechanism"),
-                   ("S3", u"S3 - No exempt – Reverse/No reverse charge mechanism"),
-                   ("E1", u"E1 - Exempt according to Article 20 of VAT Act (Technical exemptions)"),
-                   ("E2", u"E2 - Exempt according to Article 21 of VAT Act (Technical exemptions)"),
-                   ("E3", u"E3 - Exempt according to Article 22 of VAT Act (Technical exemptions)"),
-                   ("E4", u"E4 - Exempt according to Article 23 and 24 of VAT Act (Customs VAT schemes)"),
-                   ("E5", u"E5 - Exempt according to Article 25 of VAT Act (Intra-Community supplies)"),
-                   ("E6", u"E6 - Exempt others encompassing E1 to E6.")],
+        selection=[
+            ("S1", u"S1 - No Exempt – No reverse charge mechanism"),
+            ("S2", u"S2 - No exempt – reverse charge mechanism"),
+            ("S3", u"S3 - No exempt – Reverse/No reverse charge mechanism"),
+            ("E1", u"E1 - Exempt according to Article 20 of VAT Act"
+                   u" (Technical exemptions)"),
+            ("E2", u"E2 - Exempt according to Article 21 of VAT Act"
+                   u" (Technical exemptions)"),
+            ("E3", u"E3 - Exempt according to Article 22 of VAT Act"
+                   u" (Technical exemptions)"),
+            ("E4", u"E4 - Exempt according to Article 23 and 24 of VAT Act"
+                   u" (Customs VAT schemes)"),
+            ("E5", u"E5 - Exempt according to Article 25 of VAT Act"
+                   u" (Intra-Community supplies)"),
+            ("E6", u"E6 - Exempt others encompassing E1 to E6.")
+        ],
         default="S1",
         required=True
     )
     base = fields.Float(string="Base")
     tax_type = fields.Selection(
         string="Tax type",
-        selection=[("0", '0%'),
-                   ("4", '4%'),
-                   ("7", '7%'),
-                   ("8", '8%'),
-                   ("10", '10%'),
-                   ("16", '16%'),
-                   ("18", '18%'),
-                   ("21", '21%')],
+        selection=[
+            ("0", '0%'),
+            ("4", '4%'),
+            ("7", '7%'),
+            ("8", '8%'),
+            ("10", '10%'),
+            ("16", '16%'),
+            ("18", '18%'),
+            ("21", '21%')
+        ],
         default="21",
         required=True
     )
     re_type = fields.Selection(
         string="Surcharge type",
-        selection=[("0", '0%'),
-                   ("0.5", '0.5%'),
-                   ("1.4", '1.4%'),
-                   ("1.75", '1.75%'),
-                   ("5.2", '5.2%')]
+        selection=[
+            ("0", '0%'),
+            ("0.5", '0.5%'),
+            ("1.4", '1.4%'),
+            ("1.75", '1.75%'),
+            ("5.2", '5.2%')
+        ]
     )
-    tax_amount = fields.Float(string="Tax amount", store=True, compute="_calculate_tax_amount")
-    re_amount = fields.Float(string="Surcharge amount", store=True, compute="_calculate_re_amount")
+    tax_amount = fields.Float(
+        string="Tax amount",
+        store=True,
+        compute="_calculate_tax_amount"
+    )
+    re_amount = fields.Float(
+        string="Surcharge amount",
+        store=True,
+        compute="_calculate_re_amount"
+    )
 
     @api.multi
     @api.depends("base", "tax_type")
     def _calculate_tax_amount(self):
         for line in self:
-            line.tax_amount = line.base * (((line.tax_type and float(line.tax_type)) / 100) or 0)
+            line.tax_amount = line.base * (
+                    (
+                            (line.tax_type and float(line.tax_type)) / 100
+                    ) or 0
+            )
 
     @api.multi
     @api.depends("base", "re_type")
     def _calculate_re_amount(self):
         for line in self:
-            line.re_amount = line.base * (((line.re_type and float(line.re_type)) / 100) or 0)
+            line.re_amount = line.base * (
+                    (
+                            (line.re_type and float(line.re_type)) / 100
+                    ) or 0
+            )
