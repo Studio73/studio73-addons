@@ -316,6 +316,10 @@ class AccountInvoiceImport(models.Model):
                 'property_account_payable_id': account_pay.id,
                 'property_account_position_id': fposition.id,
                 'type': 'other',
+                'customer': True if
+                self.type in ['out_invoice', 'out_refund'] else False,
+                'supplier': True if
+                self.type in ['in_invoice', 'in_refund'] else False,
             })
             self.partner_id = partner
         else:
