@@ -467,9 +467,16 @@ class AccountInvoiceImport(models.Model):
     rectified_invoices_number = fields.Char(
         string="Number(s) of the invoice(s) rectified"
     )
-    supplier_number = fields.Char(string="Supplier’s invoice number")
+    supplier_number = fields.Char(
+        string="Supplier’s invoice number",
+        copy=False
+    )
     description = fields.Char(string="Operation description", required=True)
-    invoice_date = fields.Date(string="Invoice date", required=True, copy=False)
+    invoice_date = fields.Date(
+        string="Invoice date",
+        required=True,
+        copy=False
+    )
     date = fields.Date(
         string='Accounting Date',
         copy=False,
