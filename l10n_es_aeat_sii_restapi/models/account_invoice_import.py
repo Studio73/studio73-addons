@@ -283,11 +283,11 @@ class AccountInvoiceImport(models.Model):
         fposition = self.get_fposition()
 
         account_rec = account_account_obj.search([
-            ('code', 'like', '430000'),
+            ('code', 'like', '430.'),
             ('company_id', '=', self.company_id.id)
         ], limit=1)
         account_pay = account_account_obj.search([
-            ('code', 'like', '410000'),
+            ('code', 'like', '410.'),
             ('company_id', '=', self.company_id.id)
         ], limit=1)
 

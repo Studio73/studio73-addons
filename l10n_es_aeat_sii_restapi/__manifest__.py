@@ -11,7 +11,8 @@
     "license": "AGPL-3",
     "depends": [
         "l10n_es_aeat_sii",
-        "partner_expense_account"
+        "partner_expense_account",
+        "account_code_shortcut"
     ],
     "data": [
         'views/account_invoice_import_view.xml',
