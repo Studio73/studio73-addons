@@ -435,7 +435,7 @@ class AccountInvoiceImport(models.Model):
                    ('in_refund', _('Rectified/amended received invoice'))],
         track_visibility='always'
     )
-    number = fields.Char(string="Invoice number", required=True)
+    number = fields.Char(string="Invoice number", required=True, copy=False)
     invoice_type = fields.Selection(
         string="Invoice type",
         selection=[
@@ -469,7 +469,7 @@ class AccountInvoiceImport(models.Model):
     )
     supplier_number = fields.Char(string="Supplier’s invoice number")
     description = fields.Char(string="Operation description", required=True)
-    invoice_date = fields.Date(string="Invoice date", required=True)
+    invoice_date = fields.Date(string="Invoice date", required=True, copy=False)
     date = fields.Date(
         string='Accounting Date',
         copy=False,
