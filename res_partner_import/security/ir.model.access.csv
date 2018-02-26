@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_account_import_wizard_u,account.account.import.wizard user,model_account_account_import_wizard,account.group_account_user,1,0,0,0
+access_account_account_import_wizard_admin,account.account.import.wizard manager,model_account_account_import_wizard,account.group_account_manager,1,1,1,1
+access_res_partner_import_wizard_u,res.partner.import.wizard user,model_res_partner_import_wizard,account.group_account_user,1,0,0,0
+access_res_partner_import_wizard_admin,res.partner.import.wizard manager,model_res_partner_import_wizard,account.group_account_manager,1,1,1,1
