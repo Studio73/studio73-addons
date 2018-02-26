@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_import_wizard_form" model="ir.ui.view">
+        <field name="name">res.partner.import.wizard.form</field>
+        <field name="model">res.partner.import.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <p class="oe_grey">Select the file with the partners to import</p>
+                    <group>
+                        <field name="filename" invisible="1"/>
+                        <field name="file" filename="filename"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Import" name="import_xlsx" type="object" class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_res_partner_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import partners</field>
+        <field name="res_model">res.partner.import.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="domain">[]</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem name="Import partners"
+              id="menu_res_partner_import"
+              parent="account.menu_finance"
+              action="action_res_partner_import_wizard"/>
+</odoo>

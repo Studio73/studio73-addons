@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_account_import_wizard_form" model="ir.ui.view">
+        <field name="name">account.account.import.wizard.form</field>
+        <field name="model">account.account.import.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <p class="oe_grey">Select the file with the accounts to import</p>
+                    <group>
+                        <field name="filename" invisible="1"/>
+                        <field name="file" filename="filename"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Import" name="import_xlsx" type="object" class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_account_import_wizard" model="ir.actions.act_window">
+        <field name="name">Import accounts</field>
+        <field name="res_model">account.account.import.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="domain">[]</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+
+    <menuitem name="Import accounts"
+              id="menu_account_account_import"
+              parent="account.menu_finance"
+              action="action_account_account_import_wizard"/>
+</odoo>
