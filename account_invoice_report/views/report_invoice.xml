@@ -6,10 +6,10 @@
         <div class="header" style="font-size: 12.0pt; font-family: 'Helvetica','sans-serif';">
             <div class="row">
                 <div class="col-xs-5">
-                    <div class="row">
+                    <div class="row" style="height: 110px;">
                         <t t-if="o.company_id.logo">
                             <img t-att-src="'data:image/jpeg;base64,%s' % o.company_id.logo"
-                                 style="max-width: 300px; max-height: 150px;"/>
+                                 style="max-width: 300px; max-height: 110px;"/>
                         </t>
                     </div>
                     <div class="row" style="margin-top: 30px;">
