@@ -25,4 +25,5 @@ Add shipping addres to our custom invoice report.
         'views/report_invoice.xml'
     ],
     'installable': True,
+    'auto_install': True,
 }
