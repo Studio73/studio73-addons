@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template inherit_id="account_invoice_report.account_invoice_header" id="account_invoice_header_stock_picking">
+        <xpath expr="//div[@name='invoice_header_data']/div[@name='invoice_header_data_right']" position="inside">
+            <div name="picking_name" t-if="o.picking_ids">
+                Albaranes: <span t-esc="', '.join(p.name for p in o.picking_ids)"/>
+            </div>
+        </xpath>
+    </template>
+</odoo>
