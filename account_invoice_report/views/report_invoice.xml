@@ -24,8 +24,8 @@
                     </div>
                 </div>
             </div>
-            <div class="row" style="margin: 10px -15px;">
-                <div class="col-xs-6">
+            <div class="row" name="invoice_header_data" style="margin: 10px -15px;">
+                <div class="col-xs-6" name="invoice_header_data_left">
                     <h4>
                         <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Invoice</span>
                         <span t-if="o.type == 'out_invoice' and o.state == 'proforma2'">PRO-FORMA</span>
@@ -38,6 +38,11 @@
                     </h4>
                     <div name="date_invoice">
                         Fecha: <span t-field="o.date_invoice"/>
+                    </div>
+                </div>
+                <div class="col-xs-6" name="invoice_header_data_right">
+                    <div name="name" t-if="o.name">
+                        Referencia: <span t-field="o.name"/>
                     </div>
                 </div>
             </div>
