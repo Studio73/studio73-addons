@@ -4,7 +4,7 @@
 
 {
     'name': 'Account Invoice Report Stock Picking',
-    'version': '10.0.0.1.0',
+    'version': '10.0.1.0.0',
     'sequence': 173,
     'category': 'Account',
     'author': 'Consultoría Informática Studio 73 S.L.',
