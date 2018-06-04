@@ -127,10 +127,11 @@
                             </t>
                         </t>
                     </div>
-                    <div t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
+                    <div name="date_due" t-if="o.date_due and o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">
                         <strong>Fecha de vencimiento</strong> <span t-field="o.date_due"/>
                     </div>
-                    <div name="date_due" t-if="o.fiscal_position_id.note">
+
+                    <div name="fiscal_position_note" t-if="o.fiscal_position_id.note">
                         <span t-field="o.fiscal_position_id.note"/>
                     </div>
                 </div>
