@@ -101,6 +101,14 @@ class AccountInvoiceImport(models.Model):
                 "sii_registration_key": inv_import.registration_key_id.id,
             }
 
+            if inv_import.invoice_type in ['F5']:
+                invoice_vals['partner_id'] = inv_import.company_id.partner_id.id
+                invoice_vals['fiscal_position_id'] = self.env['account.fiscal.position'].search([
+                    ('name', '=', 'Importación con DUA'),
+                    ('company_id', '=', inv_import.company_id.id)],
+                    limit=1
+                ).id
+
             invoice = inv_import.invoice_id
             if not invoice:
                 invoice_vals.update({
@@ -126,102 +134,134 @@ class AccountInvoiceImport(models.Model):
                         invoice.journal_id.default_credit_account_id.id
 
             for line in inv_import.line_ids:
-                tax_codes = []
-                product_id = False
-                if inv_import.type in ['out_invoice', 'out_refund']:
-                    if line.type == 'S1':
-                        if line.tax_type in ['21', '10', '4', '0']:
-                            tax_codes.append('S_IVA%sB' % line.tax_type)
-                        else:
-                            raise Warning(
-                                _('The tax type of the lines is not supported.'
-                                  ' Contact with the IT support team')
-                            )
-                    elif line.type == 'S2':
-                        tax_codes.append('S_IVA0_ISP')
-                    elif line.type == 'E5':
-                        tax_codes.append('S_IVA0_IC')
-                    elif line.type == 'E4':
-                        tax_codes.append('S_IVA0')
-                        product_id = self.env['product.product'].search(
-                            [('name', '=', 'E4')], limit=1)
+                if inv_import.invoice_type in ['F5']:
+                    product_comp_id = self.env['product.product'].search(
+                        [('name', '=', 'DUA Compensación')], limit=1)
+                    product_iva_id = self.env['product.product'].search(
+                        [('name', 'ilike', 'DUA Valoración IVA 21')], limit=1)
+
+                    invoice_line = line.invoice_line_id
+                    if not invoice_line:
+                        invoice_line = account_invoice_line_obj.create({
+                            'invoice_id': invoice.id,
+                            'account_id': account_line_id,
+                            'name': inv_import.description,
+                            'price_unit': line.base,
+                            'quantity': 1,
+                            'product_id': product_iva_id and product_iva_id.id or False,
+                            'invoice_line_tax_ids': [(6, 0, product_iva_id.supplier_taxes_id.ids)]
+                        })
+                        line.invoice_line_id = invoice_line.id
+
+                    invoice_line_aux = line.invoice_line_aux_id
+                    if not invoice_line_aux:
+                        invoice_line_aux = account_invoice_line_obj.create({
+                            'invoice_id': invoice.id,
+                            'account_id': account_line_id,
+                            'name': inv_import.description,
+                            'price_unit': line.base,
+                            'quantity': -1,
+                            'product_id': product_comp_id and product_comp_id.id or False,
+                            'invoice_line_tax_ids': [(6, 0, product_comp_id.supplier_taxes_id.ids)]
+                        })
+                        line.invoice_line_aux_id = invoice_line_aux.id
                 else:
-                    if line.type == 'S1':
-                        if line.tax_type in ['21', '10', '4', '0']:
-                            tax_codes.append('P_IVA%s_BC' % line.tax_type)
-                        else:
-                            raise Warning(
-                                _('The tax type of the lines is not supported.'
-                                  ' Contact with the IT support team')
-                            )
-                    elif line.type == 'S2':
-                        partner_fposition = \
-                            partner.property_account_position_id \
-                            and partner.property_account_position_id.name or ''
-                        if partner_fposition == u'Régimen Nacional':
-                            if line.tax_type in ['21', '10', '4']:
-                                tax_codes.append('P_IVA%s_ISP_1'
-                                                 % line.tax_type)
+                    tax_codes = []
+                    product_id = False
+                    if inv_import.type in ['out_invoice', 'out_refund']:
+                        if line.type == 'S1':
+                            if line.tax_type in ['21', '10', '4', '0']:
+                                tax_codes.append('S_IVA%sB' % line.tax_type)
                             else:
                                 raise Warning(
-                                    _(
-                                        'The tax type of the lines is not '
-                                        'supported. Contact with the IT '
-                                        'support team')
+                                    _('The tax type of the lines is not supported.'
+                                      ' Contact with the IT support team')
                                 )
-                        elif partner_fposition == u'Régimen Intracomunitario':
-                            if line.tax_type in ['21', '10', '4']:
-                                tax_codes.append('P_IVA%s_SP_IN_1'
-                                                 % line.tax_type)
+                        elif line.type == 'S2':
+                            tax_codes.append('S_IVA0_ISP')
+                        elif line.type == 'E5':
+                            tax_codes.append('S_IVA0_IC')
+                        elif line.type == 'E4':
+                            tax_codes.append('S_IVA0')
+                            product_id = self.env['product.product'].search(
+                                [('name', '=', 'E4')], limit=1)
+                    else:
+                        if line.type == 'S1':
+                            if line.tax_type in ['21', '10', '4', '0']:
+                                tax_codes.append('P_IVA%s_BC' % line.tax_type)
                             else:
                                 raise Warning(
-                                    _(
-                                        'The tax type of the lines is not '
-                                        'supported. Contact with the IT '
-                                        'support team')
+                                    _('The tax type of the lines is not supported.'
+                                      ' Contact with the IT support team')
                                 )
-                        elif partner_fposition == u'Régimen Extracomunitario':
-                            if line.tax_type in ['21', '10', '4']:
-                                tax_codes.append('P_IVA%s_SP_EX_1'
-                                                 % line.tax_type)
-                            else:
-                                raise Warning(
-                                    _(
-                                        'The tax type of the lines is not '
-                                        'supported. Contact with the IT '
-                                        'support team')
-                                )
+                        elif line.type == 'S2':
+                            partner_fposition = \
+                                partner.property_account_position_id \
+                                and partner.property_account_position_id.name or ''
+                            if partner_fposition == u'Régimen Nacional':
+                                if line.tax_type in ['21', '10', '4']:
+                                    tax_codes.append('P_IVA%s_ISP_1'
+                                                     % line.tax_type)
+                                else:
+                                    raise Warning(
+                                        _(
+                                            'The tax type of the lines is not '
+                                            'supported. Contact with the IT '
+                                            'support team')
+                                    )
+                            elif partner_fposition == u'Régimen Intracomunitario':
+                                if line.tax_type in ['21', '10', '4']:
+                                    tax_codes.append('P_IVA%s_SP_IN_1'
+                                                     % line.tax_type)
+                                else:
+                                    raise Warning(
+                                        _(
+                                            'The tax type of the lines is not '
+                                            'supported. Contact with the IT '
+                                            'support team')
+                                    )
+                            elif partner_fposition == u'Régimen Extracomunitario':
+                                if line.tax_type in ['21', '10', '4']:
+                                    tax_codes.append('P_IVA%s_SP_EX_1'
+                                                     % line.tax_type)
+                                else:
+                                    raise Warning(
+                                        _(
+                                            'The tax type of the lines is not '
+                                            'supported. Contact with the IT '
+                                            'support team')
+                                    )
 
-                    elif line.type == 'E5':
-                        tax_codes.append('P_IVA0_BC')
-                    elif line.type == 'E4':
-                        tax_codes.append('P_IVA0_BC')
-                        product_id = self.env['product.product'].search(
-                            [('name', '=', 'E4')], limit=1)
+                        elif line.type == 'E5':
+                            tax_codes.append('P_IVA0_BC')
+                        elif line.type == 'E4':
+                            tax_codes.append('P_IVA0_BC')
+                            product_id = self.env['product.product'].search(
+                                [('name', '=', 'E4')], limit=1)
 
-                tax_ids = self.env["account.tax"]
-                for tax_code in tax_codes:
-                    tax_id = account_tax_obj.search([
-                        ('description', '=', tax_code),
-                        ('company_id', '=', invoice.company_id.id)
-                    ], limit=1)
-                    tax_ids += tax_id
+                    tax_ids = self.env["account.tax"]
+                    for tax_code in tax_codes:
+                        tax_id = account_tax_obj.search([
+                            ('description', '=', tax_code),
+                            ('company_id', '=', invoice.company_id.id)
+                        ], limit=1)
+                        tax_ids += tax_id
 
-                fpos = invoice.fiscal_position_id
-                fp_taxes = fpos.map_tax(tax_ids)
+                    fpos = invoice.fiscal_position_id
+                    fp_taxes = fpos.map_tax(tax_ids)
 
-                invoice_line = line.invoice_line_id
-                if not invoice_line:
-                    invoice_line = account_invoice_line_obj.create({
-                        'invoice_id': invoice.id,
-                        'account_id': account_line_id,
-                        'name': '/',
-                        'price_unit': line.base,
-                        'quantity': 1,
-                        'product_id': product_id and product_id.id or False,
-                        'invoice_line_tax_ids': [(6, 0, fp_taxes.ids)]
-                    })
-                    line.invoice_line_id = invoice_line.id
+                    invoice_line = line.invoice_line_id
+                    if not invoice_line:
+                        invoice_line = account_invoice_line_obj.create({
+                            'invoice_id': invoice.id,
+                            'account_id': account_line_id,
+                            'name': '/',
+                            'price_unit': line.base,
+                            'quantity': 1,
+                            'product_id': product_id and product_id.id or False,
+                            'invoice_line_tax_ids': [(6, 0, fp_taxes.ids)]
+                        })
+                        line.invoice_line_id = invoice_line.id
 
             if not inv_import.invoice_id:
                 inv_import.invoice_id = invoice.id
@@ -263,7 +303,7 @@ class AccountInvoiceImport(models.Model):
     @api.multi
     def get_partner(self):
         self.ensure_one()
-        if self.vat == self.company_id.vat:
+        if self.vat == self.company_id.vat and not self.invoice_type == 'F5':
             raise Warning(
                 _('ERROR: The VAT-Id number can\'t'
                   ' be the same of the company.')
@@ -715,6 +755,10 @@ class AccountInvoiceImportLine(models.Model):
     invoice_line_id = fields.Many2one(
         comodel_name="account.invoice.line",
         string="Invoice line"
+    )
+    invoice_line_aux_id = fields.Many2one(
+        comodel_name="account.invoice.line",
+        string="Invoice line aux"
     )
     type = fields.Selection(
         string="Type",
