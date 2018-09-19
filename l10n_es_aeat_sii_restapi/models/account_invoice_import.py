@@ -255,7 +255,7 @@ class AccountInvoiceImport(models.Model):
                         invoice_line = account_invoice_line_obj.create({
                             'invoice_id': invoice.id,
                             'account_id': account_line_id,
-                            'name': '/',
+                            'name': inv_import.description,
                             'price_unit': line.base,
                             'quantity': 1,
                             'product_id': product_id and product_id.id or False,
