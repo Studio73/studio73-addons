@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_layouted_inherit" inherit_id="sale.report_invoice_layouted">
+        <xpath expr="//div[@class='page']//table" position="before">
+            <t t-set="show_hs_code_in_report" t-value="o.show_hs_code_in_report()"/>
+        </xpath>
+
+        <xpath expr="//table/tbody[@class='invoice_tbody']//td/span[contains(@t-field, 'l.name')]" position="after">
+            <t t-if="show_hs_code_in_report and l.product_id.hs_code">
+                <p style="font-size: 0.7em; margin-bottom: 0;"><i>HS Code: <span t-field="l.product_id.hs_code"/></i></p>
+            </t>
+        </xpath>
+
+        <xpath expr="//t[contains(@t-as, 'page')]/table[position()=1]/tbody[@class='invoice_tbody']//td/span[contains(@t-field, 'l.name')]" position="after">
+            <t t-if="show_hs_code_in_report and l.product_id.hs_code">
+                <p style="font-size: 0.7em; margin-bottom: 0;"><i>HS Code: <span t-field="l.product_id.hs_code"/></i></p>
+            </t>
+        </xpath>
+    </template>
+</odoo>
