@@ -12,7 +12,8 @@
     "depends": [
         "l10n_es_aeat_sii",
         "partner_expense_account",
-        "account_code_shortcut"
+        "account_code_shortcut",
+        "l10n_es_dua_sii",
     ],
     "data": [
         'views/account_invoice_import_view.xml',
