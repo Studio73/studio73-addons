@@ -137,8 +137,13 @@ class AccountInvoiceImport(models.Model):
                 if inv_import.invoice_type in ['F5']:
                     product_comp_id = self.env['product.product'].search(
                         [('name', '=', 'DUA Compensación')], limit=1)
-                    product_iva_id = self.env['product.product'].search(
+                    if line.type == 'E4':
+                        product_iva_id = self.env['product.product'].search(
+                            [('name', '=', 'E4')], limit=1)
+                    else:
+                        product_iva_id = self.env['product.product'].search(
                         [('name', 'ilike', 'DUA Valoración IVA 21')], limit=1)
+
 
                     invoice_line = line.invoice_line_id
                     if not invoice_line:
@@ -837,3 +842,24 @@ class AccountInvoiceImportLine(models.Model):
                             (line.re_type and float(line.re_type)) / 100
                     ) or 0
             )
+
+
+class AccountInvoice(models.Model):
+    _inherit = 'account.invoice'
+
+    @api.multi
+    def _compute_dua_invoice(self):
+        for invoice in self:
+            if invoice.fiscal_position_id.name == u'Importación con DUA' and \
+                    invoice.tax_line_ids.\
+                    filtered(lambda x: x.tax_id.description in
+                             ['P_IVA21_IBC', 'P_IVA10_IBC', 'P_IVA4_IBC',
+                              'P_IVA21_IBI', 'P_IVA10_IBI', 'P_IVA4_IBI',
+                              'P_IVA21_SP_EX', 'P_IVA10_SP_EX',
+                              'P_IVA4_SP_EX','P_IVA0_BC']):
+                invoice.sii_dua_invoice = True
+            else:
+                invoice.sii_dua_invoice = False
+
+    sii_dua_invoice = fields.Boolean("SII DUA Invoice",
+                                     compute="_compute_dua_invoice")
