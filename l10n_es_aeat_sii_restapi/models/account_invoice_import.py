@@ -848,18 +848,20 @@ class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
     @api.multi
-    def _compute_dua_invoice(self):
+    @api.depends('tax_line_ids')
+    def _compute_sii_enabled(self):
         for invoice in self:
             if invoice.fiscal_position_id.name == u'Importación con DUA' and \
-                    invoice.tax_line_ids.\
-                    filtered(lambda x: x.tax_id.description in
-                             ['P_IVA21_IBC', 'P_IVA10_IBC', 'P_IVA4_IBC',
-                              'P_IVA21_IBI', 'P_IVA10_IBI', 'P_IVA4_IBI',
-                              'P_IVA21_SP_EX', 'P_IVA10_SP_EX',
-                              'P_IVA4_SP_EX','P_IVA0_BC']):
-                invoice.sii_dua_invoice = True
+                    not invoice.sii_dua_invoice:
+                invoice.sii_enabled = False
             else:
-                invoice.sii_dua_invoice = False
+                super(AccountInvoice, invoice)._compute_sii_enabled()
 
-    sii_dua_invoice = fields.Boolean("SII DUA Invoice",
-                                     compute="_compute_dua_invoice")
+    @api.multi
+    def _compute_dua_invoice(self):
+        super(AccountInvoice, self)._compute_dua_invoice()
+        for invoice in self:
+            if invoice.sii_dua_invoice is False:
+                if invoice.tax_line_ids.filtered(
+                        lambda x: x.tax_id.description in ['P_IVA0_BC']):
+                    invoice.sii_dua_invoice = True
