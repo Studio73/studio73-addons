@@ -431,6 +431,14 @@ class AccountInvoiceImport(models.Model):
             "aeat.sii.mapping.registration.keys"].search(domain)
         return registration_key or None
 
+    @api.depends('registration_key_id')
+    def _compute_registration_key_id_code(self):
+        for inv in self:
+            if inv.registration_key_id:
+                inv.registration_key_id_code = inv.registration_key_id.code
+            else:
+                inv.registration_key_id_code = False
+
     def _get_default_currency(self):
         currency = self.env["res.currency"].search(
             [("name", "=", "EUR")], limit=1)
@@ -540,8 +548,9 @@ class AccountInvoiceImport(models.Model):
         required=True
     )
     registration_key_id_code = fields.Char(
-        related='registration_key_id.code',
-        string="Registration key code"
+        string="Registration key code",
+        compute="_compute_registration_key_id_code",
+        store=True,
     )
     currency_id = fields.Many2one(
         comodel_name="res.currency",
