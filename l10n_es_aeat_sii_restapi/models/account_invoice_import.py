@@ -134,7 +134,7 @@ class AccountInvoiceImport(models.Model):
                         invoice.journal_id.default_credit_account_id.id
 
             for line in inv_import.line_ids:
-                if inv_import.invoice_type in ['F5']:
+                if inv_import.invoice_type == 'F5':
                     product_comp_id = self.env['product.product'].search(
                         [('name', '=', 'DUA Compensación')], limit=1)
                     if line.type == 'E4':
@@ -190,6 +190,10 @@ class AccountInvoiceImport(models.Model):
                             tax_codes.append('S_IVA0')
                             product_id = self.env['product.product'].search(
                                 [('name', '=', 'E4')], limit=1)
+                        elif line.type == 'E2':
+                            tax_codes.append('S_IVA0_E')
+                            product_id = self.env['product.product'].search(
+                                [('name', '=', 'E2')], limit=1)
                     else:
                         if line.type == 'S1':
                             if line.tax_type in ['21', '10', '4', '0']:
