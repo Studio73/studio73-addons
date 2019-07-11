@@ -1,0 +1,15 @@
+pipeline:
+  linters:
+    image: registry.studio73.es/odoo-mqt:latest
+    pull: true
+    commands:
+      - linter
+  notify:
+    image: registry.studio73.es/drone-telegram-bot:latest
+    pull: true
+    commands:
+      - bot --notify ${DRONE_COMMIT_AUTHOR} ${DRONE_BUILD_LINK}
+    when:
+      status: [ failure ]
+    
+branches: 12.0
