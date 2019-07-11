@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# (c) 2017 Consultoría Informática Studio 73 S.L.
+# Copyright 2017 Consultoría Informática Studio 73 S.L.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import models, fields, api
@@ -9,7 +8,8 @@ class AccountAccount(models.Model):
     _inherit = 'account.account'
 
     @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
+    def _search(self, args, offset=0, limit=None, order=None, count=False,
+                access_rights_uid=None):
         """Improves the search of accounts using a dot to fill the zeroes
             (like 43.27 to search account 43000027)"""
         args = args[:]
@@ -39,5 +39,5 @@ class AccountAccount(models.Model):
                     if ids:
                         args[pos] = ('id', 'in', ids)
             pos += 1
-        return super(AccountAccount, self).search(
-            args, offset, limit, order, count)
+        return super(AccountAccount, self)._search(
+            args, offset, limit, order, count, access_rights_uid)
