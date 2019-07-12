@@ -9,8 +9,8 @@
     'summary': """
     Permite buscar cuentas contables utilizando atajos ej. 43.89 = 43000089 o 4300000089
     """,
-    'author': 'Consultoría Informática Studio 73 S.L.',
-    'website': 'Studio73',
+    'author': 'Studio73',
+    'website': 'http://www.studio73.es',
     'depends': ['account'],
     'installable': True,
 }
