@@ -195,6 +195,10 @@ class AccountInvoiceImport(models.Model):
                             product_id = self.env['product.product'].search(
                                 [('name', '=', 'E2')], limit=1)
                     else:
+                        if line.type == 'E1':
+                            if self.company_id.id == 23 and line.tax_type == '0':
+                                tax_codes.append(
+                                    'P_IVA%s_NS' % line.tax_type)
                         if line.type == 'S1':
                             if line.tax_type in ['21', '10', '4', '0']:
                                 tax_codes.append('P_IVA%s_BC' % line.tax_type)
